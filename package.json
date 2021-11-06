@@ -1,0 +1,41 @@
+{
+  "name": "card-management-system",
+  "version": "1.0.0",
+  "description": "APIs for Card Management System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eslint": "eslint src",
+    "clean": "if exist \"build\" rmdir build /S /Q",
+    "build-babel": "babel ./src -d ./build/src",
+    "build": "npm run clean && npm run build-babel",
+    "production": "npm run build && node ./build/src/server.js",
+    "dev": "nodemon --exec ./node_modules/.bin/babel-node ./src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tran4774/card-management-system.git"
+  },
+  "keywords": [],
+  "author": "Lo Minh Phat, Nguyen Bao Tran, Nguyen Van Son",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tran4774/card-management-system/issues"
+  },
+  "homepage": "https://github.com/tran4774/card-management-system#readme",
+  "dependencies": {
+    "@babel/eslint-parser": "^7.16.0",
+    "@babel/runtime": "^7.16.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/node": "^7.16.0",
+    "@babel/plugin-transform-runtime": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "eslint": "^8.2.0",
+    "nodemon": "^2.0.14"
+  }
+}
