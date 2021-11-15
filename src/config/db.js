@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import env from '@src/config/environment.js'
 
-
 export const connectDB = async () => {
   const conn = await mongoose.connect(env.MONGODB_URI, {
     useUnifiedTopology: true,
