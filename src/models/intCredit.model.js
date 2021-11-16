@@ -1,6 +1,10 @@
 import mongoose from 'mongoose'
 
 const IntCreditSchema = mongoose.Schema({
+  cardName: {
+    type: String,
+    require: true
+  },
   cardRank: { //standard, (silver), gold (dang tinh bo silver, giam tai)
     type: String,
     required: true
@@ -14,11 +18,11 @@ const IntCreditSchema = mongoose.Schema({
     required: true
   },
   statmentDay: { //ngay sao ke
-    type: String,
+    type: Number,
     required: true
   },
   payWithin: { //ngay den han thanh toan, sau sao ke bao nhieu ngay
-    type: String,
+    type: Number,
     required: true
   },
   interestRate: { // % / thang, sau ngay den hang bat dau tinh

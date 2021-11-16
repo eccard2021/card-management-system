@@ -14,7 +14,7 @@ const cardListSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  cardRank: { //standard, (silver), gold (dang tinh bo silver, giam tai)
+  cardName: { //standard, (silver), gold (dang tinh bo silver, giam tai)
     type: String,
     required: true
   },
@@ -33,6 +33,10 @@ const cardListSchema = mongoose.Schema({
     ref: 'Account',
     required: true,
     default: null
+  },
+  validDate: {
+    type: Date,
+    require: true
   },
   expiredDate: {
     type: Date,
