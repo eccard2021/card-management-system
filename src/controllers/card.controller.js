@@ -1,6 +1,4 @@
-import IntCredit from '@src/models/intCredit.model'
-import IntDebit from '@src/models/intDebit.model'
-import domDebit from '@src/models/domDebit.model'
+import CardType from '../models/cardTypes.model'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '@src/utilities/constant'
 
@@ -13,9 +11,11 @@ export const getOneCardType = asyncHandler(async (req, res) => {
 })
 
 export const getAllCardTypes = asyncHandler(async (req, res) => {
-  const allCards = {
-    intCrebit: await IntCredit.find().select(['-__v', '-createdAt', '-updatedAt'])
-  }
+  const allCards = await CardType.find().select([
+    '-__v',
+    '-createdAt',
+    '-updatedAt'
+  ])
   if (allCards) {
     res.json(allCards)
   } else {
