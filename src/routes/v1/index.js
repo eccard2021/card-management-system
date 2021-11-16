@@ -1,6 +1,7 @@
 import express from 'express'
 import { HttpStatusCode } from '@src/utilities/constant'
 import { userRoutes } from './user.route'
+import { cardTypeRoutes } from './cardType.route'
 
 const router = express.Router()
 
@@ -12,4 +13,7 @@ router.get('/status', (req, res) => res.status(HttpStatusCode.OK).json({ status:
 
 /**User API */
 router.use('/user', userRoutes)
+/**CardType API */
+router.use('/card-type', cardTypeRoutes)
+
 export const apiV1 = router
