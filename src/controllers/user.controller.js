@@ -88,7 +88,7 @@ const registerUser = asyncHandler(async (req, res) => {
 //@route GET /api/users/profile
 //@access private
 const getUserProfile = asyncHandler(async (req, res) => {
-  let user = await User.findById(req.user._id)
+  let user = await User.findById(req.user._id).select('-password')
   if (user) {
     res.json(user)
   }
