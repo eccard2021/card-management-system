@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { standardizeCardNameForUrl } from '../utilities/cardType.utils'
 
 const IntCreditsSchema = mongoose.Schema({
   cardUrl: {
@@ -202,8 +203,17 @@ const DomDebitsSchema = mongoose.Schema({
   timestamps: true
 })
 
+IntCreditsSchema.post('save', function (error, doc, next) {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    throw new Error('Tên thẻ bị trùng!!!')
+  } else {
+    next(error)
+  }
+})
+
 const IntCredits = mongoose.model('IntCredits', IntCreditsSchema)
 const IntDebits = mongoose.model('IntDebits', IntDebitsSchema)
 const DomDebits = mongoose.model('DomDebits', DomDebitsSchema)
+
 
 export { IntCredits, IntDebits, DomDebits }

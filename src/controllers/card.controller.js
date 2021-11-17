@@ -1,11 +1,18 @@
-import CardType from '../models/cardTypes.model'
+import { standardizeCardNameForUrl } from '../utilities/cardType.utils'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '@src/utilities/constant'
+import { IntCredits, IntDebits, DomDebits } from '../models/cardTypes.model'
 
-const findCardByTypeAndId = async (type, id) => {
-  let card = await CardType.findOne({})
+const combination = {
+  intCredits: IntCredits,
+  intDebits: IntDebits,
+  domDebits: DomDebits
+}
+
+const findCardByTypeAndUrlPath = async (type, urlPath) => {
   try {
-    return card[type].id(id)
+    let card = await combination[type].findOne({ cardUrl: urlPath })
+    return card
   }
   catch (error) {
     throw new Error('Not Found')
@@ -18,21 +25,23 @@ export const createCardType = asyncHandler(async (req, res) => {
     throw new Error('You aren\'t admin!!!')
   }
   let value = req.body
-  let card = await CardType.findOne({})
+  value.cardUrl = standardizeCardNameForUrl(value.cardName)
   try {
-    card[value.cardType].push(value)
-    card.markModified(value.cardType)
-    await card.save()
+    await combination[value.cardType].create(value)
   }
   catch (error) {
-    console.log(error)
-    throw new Error('Not Found')
+    if (error.code === 11000)
+      throw new Error('Tên thẻ bị trùng!!!')
+    else {
+      res.status(HttpStatusCode.NOT_FOUND)
+      throw new Error('Not Found')
+    }
   }
   res.json({ message: 'Tạo thẻ thành công' })
 })
 
-export const getCardByTypeAndId = asyncHandler(async (req, res) => {
-  let card = await findCardByTypeAndId(req.params.cardType, req.params._id)
+export const getCardByTypeAndUrlPath = asyncHandler(async (req, res) => {
+  let card = await findCardByTypeAndUrlPath(req.params.cardType, req.params.urlPath)
   if (!card) {
     res.status(HttpStatusCode.NOT_FOUND)
     throw new Error('Not Found')
@@ -43,24 +52,26 @@ export const getCardByTypeAndId = asyncHandler(async (req, res) => {
 })
 
 export const getOneCardType = asyncHandler(async (req, res) => {
-  let cards = await CardType.findOne({})
-  if (!cards[req.params.cardType]) {
+  if (!req.params.cardType || !combination[req.params.cardType]) {
     res.status(HttpStatusCode.NOT_FOUND)
     throw new Error('Not Found')
   }
-  res.json(cards[req.params.cardType])
+  let cards = await combination[req.params.cardType].find({}).select('-_id -__v -createdAt -updatedAt').lean()
+  res.json(cards)
 })
 
 export const getAllCardTypes = asyncHandler(async (req, res) => {
-  const allCards = await CardType.findOne().select([
-    '-_id',
-    '-__v',
-    '-createdAt',
-    '-updatedAt'
-  ])
-  if (!allCards) {
+  let GC = await combination.intCredits.find().select('-_id -__v -createdAt -updatedAt').lean()
+  let GD = await combination.intDebits.find().select('-_id -__v -createdAt -updatedAt').lean()
+  let DD = await combination.domDebits.find().select('-_id -__v -createdAt -updatedAt').lean()
+  if (!GC || !GD || !DD) {
     res.status(HttpStatusCode.NOT_FOUND)
     throw new Error('Cards not found')
+  }
+  const allCards = {
+    intCredits: GC,
+    intDebits: GD,
+    domDebits: DD
   }
   res.json(allCards)
 })
@@ -71,20 +82,21 @@ export const updateCardType = asyncHandler(async (req, res) => {
     throw new Error('You aren\'t admin!!!')
   }
   let value = req.body
-  let card = await CardType.findOne({})
+  let card = await findCardByTypeAndUrlPath(value.cardType, value.cardUrl)
   try {
     for (let key in value) {
-      if (key !== '_id' && card[value.cardType].id(value._id).get(key))
-        card[value.cardType].id(value._id)[key] = value[key]
+      if (key !== '_id' && key !== 'cardUrl' && card.get(key)) {
+        card[key] = value[key]
+        card.markModified(value.cardType)
+      }
     }
-    card.markModified(value.cardType)
     await card.save()
   }
   catch (error) {
     console.log(error)
     throw new Error('Not Found')
   }
-  let newCard = await findCardByTypeAndId(value.cardType, value._id)
+  let newCard = await findCardByTypeAndUrlPath(value.cardType, value.cardUrl).select('-_id -__v -createdAt -updatedAt').lean()
   if (!newCard) {
     res.status(HttpStatusCode.NOT_FOUND)
     throw new Error('Not Found')
@@ -100,15 +112,12 @@ export const deleteCardType = asyncHandler(async (req, res) => {
     throw new Error('You aren\'t admin!!!')
   }
   let value = req.body
-  let card = await CardType.findOne({})
   try {
-    card[value.cardType].id(value._id).remove((removeerr, removresult) => {
-      if (removeerr) {
-        res.status(HttpStatusCode.BAD_REQUEST).send(removeerr.message)
+    combination[value.cardType].findOneAndRemove({ cardUrl: value.cardUrl }, (err) => {
+      if (err) {
+        res.status(HttpStatusCode.BAD_REQUEST).send(err.message)
       }
     })
-    card.markModified(value.cardType)
-    await card.save()
   }
   catch (error) {
     console.log(error)
