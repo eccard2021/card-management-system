@@ -4,11 +4,17 @@ import { generateAccountNumber, generateRandomPassword } from '@src/utilities/us
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '@src/utilities/constant'
 import sendEmail from './email.controller'
+import { validationResult } from 'express-validator'
 
 //@desc auth user and get token
 //@route POST /api/users/login
 //@access public
 const authUser = asyncHandler(async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Email hoặc password không hợp lệ', errors: errors.array() })
+    return
+  }
   const { email, password } = req.body
   const user = await User.findOne({ email })
   //response user information to front-end
@@ -30,7 +36,7 @@ const authUser = asyncHandler(async (req, res) => {
     })
   } else {
     res.status(HttpStatusCode.UNAUTHORIZED)
-    throw new Error('Invalid email or password')
+    throw new Error('Email hoặc password không hợp lệ')
   }
 
 })
@@ -39,6 +45,11 @@ const authUser = asyncHandler(async (req, res) => {
 //@route POST /api/users
 //@access public
 const registerUser = asyncHandler(async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Lỗi đăng kí người dùng!!!', errors: errors.array() })
+    return
+  }
   const newUser = req.body
   const userExists = await User.findOne({ email: newUser.email })
   if (userExists) {
@@ -102,23 +113,24 @@ const getUserProfile = asyncHandler(async (req, res) => {
 //@route PUT /api/users/profile
 //@access private
 const updateUserProfile = asyncHandler(async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ errors: errors.array() })
+    return
+  }
   const user = await User.findById(req.user._id)
 
   if (user) {
     if (req.body.currentPassword && (await user.matchPassword(req.body.currentPassword))) {
-      if (req.body.newPassword === req.body.confirmNewPassword) {
-        user.password = req.body.newPassword
-        const updatedUser = await user.save()
-        res.json({ message: 'Thay đổi mật khẩu thành công, vui lòng đăng nhập lại' })
-      } else {
-        res.json({ message: 'Mật khẩu xác nhận không khớp' })
-      }
+      user.password = req.body.newPassword
+      await user.save()
+      res.json({ message: 'Thay đổi mật khẩu thành công, vui lòng đăng nhập lại' })
     } else {
       res.status(HttpStatusCode.UNAUTHORIZED).json({ message: 'Mật khẩu cũ không khớp!!' })
     }
   } else {
     res.status(HttpStatusCode.NOT_FOUND)
-    throw new Error('user not found')
+    throw new Error('User not found')
   }
 })
 

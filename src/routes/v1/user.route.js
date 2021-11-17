@@ -1,11 +1,12 @@
 import express from 'express'
 import { authUser, getUserProfile, registerUser, updateUserProfile } from '@src/controllers/user.controller'
 import { protect } from '@src/middlewares/auth.middleware'
+import { validateRegisterUser, validateLoginUser, validateModifyPasswordUser } from '@src/validators/user.validator'
 
 const router = express.Router()
 
-router.post('/login', authUser)
-router.route('/profile').get(protect, getUserProfile).put(protect, updateUserProfile)
-router.route('/register').post(registerUser)
+router.post('/login', validateLoginUser(), authUser)
+router.route('/profile').get(protect, getUserProfile).put(protect, validateModifyPasswordUser(), updateUserProfile)
+router.route('/register').post(validateRegisterUser(), registerUser)
 
 export const userRoutes = router
