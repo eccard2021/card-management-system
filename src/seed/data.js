@@ -50,6 +50,7 @@ export const users = [
 export const cardTypes = {
   intCredits: [
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'platinum',
@@ -66,6 +67,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'gold',
@@ -82,6 +84,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'silver',
@@ -98,6 +101,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'gold',
@@ -114,6 +118,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'platinum',
@@ -130,6 +135,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'gold',
@@ -146,6 +152,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'silver',
@@ -162,6 +169,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-tin-dung-vpbank-shopee-platinum',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'gold',
@@ -180,6 +188,7 @@ export const cardTypes = {
   ],
   intDebits: [
     {
+      cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond',
       cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
       image: '/',
       cardRank: 'gold',
@@ -198,6 +207,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond',
       cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
       image: '/',
       cardRank: 'silver',
@@ -216,6 +226,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond',
       cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
       image: '/',
       cardRank: 'platinum',
@@ -234,6 +245,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond',
       cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
       image: '/',
       cardRank: 'gold',
@@ -254,6 +266,7 @@ export const cardTypes = {
   ],
   domDebits: [
     {
+      cardUrl: 'the-ghi-no-noi-dia-autolink',
       cardName: 'Thẻ ghi nợ nội địa AutoLink',
       image: '/',
       cardRank: 'gold',
@@ -271,6 +284,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-ghi-no-noi-dia-autolink',
       cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
       image: '/',
       cardRank: 'silver',
@@ -288,6 +302,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-ghi-no-noi-dia-autolink',
       cardName: 'Thẻ ghi nợ nội địa AutoLink',
       image: '/',
       cardRank: 'platinum',
@@ -305,6 +320,7 @@ export const cardTypes = {
       outDrawFee: 0.1
     },
     {
+      cardUrl: 'the-ghi-no-noi-dia-autolink',
       cardName: 'Thẻ ghi nợ nội địa AutoLink',
       image: '/',
       cardRank: 'gold',

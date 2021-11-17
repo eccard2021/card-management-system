@@ -3,6 +3,11 @@ import mongoose from 'mongoose'
 const CardTypeSchema = mongoose.Schema({
   intCredits: [{
     type: mongoose.Schema({
+      cardUrl: {
+        type: String,
+        require: true,
+        index: true
+      },
       cardName: {
         type: String,
         require: true
@@ -65,6 +70,11 @@ const CardTypeSchema = mongoose.Schema({
   }],
   intDebits: [{
     type: mongoose.Schema({
+      cardUrl: {
+        type: String,
+        require: true,
+        index: true
+      },
       cardName: {
         type: String,
         require: true
@@ -131,6 +141,11 @@ const CardTypeSchema = mongoose.Schema({
   }],
   domDebits: [{
     type: mongoose.Schema({
+      cardUrl: {
+        type: String,
+        require: true,
+        index: true
+      },
       cardName: {
         type: String,
         require: true
