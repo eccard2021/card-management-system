@@ -6,7 +6,6 @@ import { apiV1 } from './routes/v1'
 import cors from 'cors'
 import { corsOptions } from './utilities/constant'
 import helmet from 'helmet'
-import cookieParser from 'cookie-parser'
 
 connectDB()
   .then(() => console.log('Connected succesfully to database server!'))
@@ -21,7 +20,6 @@ const bootServer = async () => {
   //app.use(cors(corsOptions))
   app.use(helmet())
   app.use(express.json({ limit: '100kb' }))
-  app.use(cookieParser())
   app.use('/v1', apiV1)
   app.use(notFound)
   app.use(errHandler)

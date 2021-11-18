@@ -4,23 +4,22 @@ import User from '@src/models/user.model'
 import { HttpStatusCode } from '@src/utilities/constant'
 
 const protect = asyncHandler(async (req, res, next) => {
-  const token = req.cookies.token
-  try {
-    if (!token.startsWith('Bearer')) {
+  let token
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.replace('Bearer ', '')
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      req.user = await User.findOne({ _id: decoded._id, 'tokens.token': token }).select('-password')
+      if (!req.user) {
+        res.status(HttpStatusCode.UNAUTHORIZED)
+        throw new Error()
+      }
+      next()
+    } catch (error) {
+      console.error(error)
       res.status(HttpStatusCode.UNAUTHORIZED)
       throw new Error()
     }
-    req.token = token.replace('Bearer ', '')
-    const decoded = jwt.verify(req.token, process.env.JWT_SECRET)
-    req.user = await User.findOne({ _id: decoded._id, 'tokens.token': req.token }).select('-password')
-    if (!req.user) {
-      res.status(HttpStatusCode.UNAUTHORIZED)
-      throw new Error()
-    }
-    next()
-  } catch (error) {
-    res.status(HttpStatusCode.UNAUTHORIZED)
-    throw new Error('failed to authorized')
   }
 })
 

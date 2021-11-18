@@ -17,33 +17,29 @@ const authUser = asyncHandler(async (req, res) => {
     return
   }
   const { email, password } = req.body
-  try {
-    const user = await User.findByCredentials(email, password)
-    if (!user) {
-      res.status(HttpStatusCode.UNAUTHORIZED)
-      throw new Error('Email hoặc password không hợp lệ')
-    }
-    const token = await user.generateAuthToken()
-    res.cookie('token', `Bearer ${token}`, { httpOnly: true })
-      .json({
-        _id: user._id,
-        name: user.name,
-        birth: user.birth,
-        isMale: user.isMale,
-        personalIdNumber: user.personalIdNumber,
-        phoneNumber: user.phoneNumber,
-        email: user.email,
-        homeAddress: user.homeAddress,
-        job: user.job,
-        accNumber: user.accNumber,
-        isAdmin: user.isAdmin,
-        balance: user.balance
-      })
-  } catch (error) {
-    console.log(error)
+  const user = await User.findByCredentials(email, password)
+  if (!user) {
     res.status(HttpStatusCode.UNAUTHORIZED)
     throw new Error('Email hoặc password không hợp lệ')
   }
+  const token = await user.generateAuthToken()
+  //response user information to front-end
+  res.json({
+    _id: user._id,
+    name: user.name,
+    birth: user.birth,
+    isMale: user.isMale,
+    personalIdNumber: user.personalIdNumber,
+    phoneNumber: user.phoneNumber,
+    email: user.email,
+    homeAddress: user.homeAddress,
+    job: user.job,
+    accNumber: user.accNumber,
+    isAdmin: user.isAdmin,
+    balance: user.balance,
+    token: token
+  })
+
 })
 
 //@desc REGISTER new user
