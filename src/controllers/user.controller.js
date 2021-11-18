@@ -4,6 +4,8 @@ import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '@src/utilities/constant'
 import sendEmail from './email.controller'
 import { validationResult } from 'express-validator'
+import paypal from 'paypal-rest-sdk'
+
 
 //@desc auth user and get token
 //@route POST /api/users/login
@@ -157,6 +159,17 @@ export const logOutAll = async (req, res) => {
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
   }
+}
+
+export const chargeUser = async (req, res) => {
+  //sb-v7mkg8597409@business.example.com
+  //testsandbox     NC,^5NCl
+  paypal.configure({
+    'mode': 'sandbox', //sandbox or live
+    'client_id': 'ASwE2MUWBDU7vwUXj8K3MY3Mppt6amxqPMcyhvAPmTvWGrELroF78364LxmX51p16iqVt70md5KbYJ3l',
+    'client_secret': 'ECMQImtKavZTjrSE8lD8pl5TBvgsgiii-tJdqKaMNOjOirPAvajaU7fjpK8reBjT_hWO5c7Hm6OdqkzR'
+  })
+  res.json({ url: 'https://google.com' })
 }
 
 export { authUser, getUserProfile, registerUser, updateUserProfile }

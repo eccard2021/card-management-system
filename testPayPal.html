@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    axios.defaults.withCredentials = true
+  </script>
+  <title>test paypal</title>
+</head>
+<body>
+  <div id="item">
+    <div id="itemname">
+      Nạp lúa
+    </div>
+    <div id="itemprice">$5</div>
+    <button class="btn" onclick="getPayment()">Buy</button>
+  </div>
+</body>
+</html>
+<script>
+  async function getPayment() {
+    await axios({
+      method: 'post',
+      url: 'http://localhost:8080/v1/user/charge',
+      data: {
+        firstName: 'First name',
+        lastName: 'Last name'
+      },
+      credentials: 'include',
+      //withCredentials: true
+    }).then(function (response) {
+      console.log(response)
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+  }
+</script>

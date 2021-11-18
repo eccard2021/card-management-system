@@ -1,5 +1,5 @@
 import express from 'express'
-import { authUser, getUserProfile, registerUser, updateUserProfile, logOutUser, logOutAll } from '@src/controllers/user.controller'
+import { authUser, getUserProfile, registerUser, updateUserProfile, logOutUser, logOutAll, chargeUser } from '@src/controllers/user.controller'
 import { protect } from '@src/middlewares/auth.middleware'
 import { validateRegisterUser, validateLoginUser, validateModifyPasswordUser } from '@src/validators/user.validator'
 
@@ -10,5 +10,6 @@ router.route('/profile').get(protect, getUserProfile).put(protect, validateModif
 router.route('/register').post(validateRegisterUser(), registerUser)
 router.route('/logout').post(protect, logOutUser)
 router.route('/logoutall').post(protect, logOutAll)
+router.route('/charge').post(protect, chargeUser)
 
 export const userRoutes = router

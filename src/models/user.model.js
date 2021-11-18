@@ -89,7 +89,7 @@ UserSchema.methods.generateAuthToken = async function () {
   return token
 }
 
-UserSchema.statics.findByCredentials = async (email, password, select) => {
+UserSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email })
   if (!user) {
     throw new Error('Email hoặc password không hợp lệ')
