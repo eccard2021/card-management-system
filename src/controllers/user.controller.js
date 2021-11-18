@@ -102,7 +102,7 @@ const registerUser = asyncHandler(async (req, res) => {
 //@route GET /api/users/profile
 //@access private
 const getUserProfile = asyncHandler(async (req, res) => {
-  let user = await User.findById(req.user._id).select('-password -tokens')
+  let user = await User.findById(req.user._id).select('-password -tokens -__v')
   if (user) {
     res.json(user)
   }
@@ -136,5 +136,27 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     throw new Error('User not found')
   }
 })
+
+export const logOutUser = async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token != req.token
+    })
+    await req.user.save()
+    res.json({ message: 'Đăng xuất thành công' })
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+  }
+}
+
+export const logOutAll = async (req, res) => {
+  try {
+    req.user.tokens.splice(0, req.user.tokens.length)
+    await req.user.save()
+    res.json({ message: 'Đăng xuất khỏi tất cả thiết bị thành công' })
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+  }
+}
 
 export { authUser, getUserProfile, registerUser, updateUserProfile }
