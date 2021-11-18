@@ -1,5 +1,4 @@
 import User from '@src/models/user.model'
-import generateToken from '@src/utilities/generateToken.js'
 import { generateAccountNumber, generateRandomPassword } from '@src/utilities/user.utils'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '@src/utilities/constant'
@@ -16,29 +15,33 @@ const authUser = asyncHandler(async (req, res) => {
     return
   }
   const { email, password } = req.body
-  const user = await User.findOne({ email })
-  //response user information to front-end
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      birth: user.birth,
-      isMale: user.isMale,
-      personalIdNumber: user.personalIdNumber,
-      phoneNumber: user.phoneNumber,
-      email: user.email,
-      homeAddress: user.homeAddress,
-      job: user.job,
-      accNumber: user.accNumber,
-      isAdmin: user.isAdmin,
-      balance: user.balance,
-      token: generateToken(user._id)
-    })
-  } else {
+  try {
+    const user = await User.findByCredentials(email, password)
+    if (!user) {
+      res.status(HttpStatusCode.UNAUTHORIZED)
+      throw new Error('Email hoặc password không hợp lệ')
+    }
+    const token = await user.generateAuthToken()
+    res.cookie('token', `Bearer ${token}`, { httpOnly: true })
+      .json({
+        _id: user._id,
+        name: user.name,
+        birth: user.birth,
+        isMale: user.isMale,
+        personalIdNumber: user.personalIdNumber,
+        phoneNumber: user.phoneNumber,
+        email: user.email,
+        homeAddress: user.homeAddress,
+        job: user.job,
+        accNumber: user.accNumber,
+        isAdmin: user.isAdmin,
+        balance: user.balance
+      })
+  } catch (error) {
+    console.log(error)
     res.status(HttpStatusCode.UNAUTHORIZED)
     throw new Error('Email hoặc password không hợp lệ')
   }
-
 })
 
 //@desc REGISTER new user
@@ -99,7 +102,7 @@ const registerUser = asyncHandler(async (req, res) => {
 //@route GET /api/users/profile
 //@access private
 const getUserProfile = asyncHandler(async (req, res) => {
-  let user = await User.findById(req.user._id).select('-password')
+  let user = await User.findById(req.user._id).select('-password -tokens')
   if (user) {
     res.json(user)
   }

@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
+import Jwt from 'jsonwebtoken'
+import env from '../config/environment'
 
 const UserSchema = mongoose.Schema({
   //noi dung KH nhap
@@ -56,7 +58,13 @@ const UserSchema = mongoose.Schema({
     type: Number,
     required: true,
     default: 0
-  }
+  },
+  tokens: [{
+    token: {
+      type: String,
+      required: true
+    }
+  }]
 }, {
   timestamps: true
 })
@@ -72,6 +80,26 @@ UserSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
 })
+
+UserSchema.methods.generateAuthToken = async function () {
+  const user = this
+  const token = Jwt.sign({ _id: user._id }, env.JWT_SECRET)
+  user.tokens = user.tokens.concat({ token })
+  await user.save()
+  return token
+}
+
+UserSchema.statics.findByCredentials = async (email, password, select) => {
+  const user = await User.findOne({ email })
+  if (!user) {
+    throw new Error('Email hoặc password không hợp lệ')
+  }
+  const isPasswordMatch = await user.matchPassword(password)
+  if (!isPasswordMatch) {
+    throw new Error('Email hoặc password không hợp lệ')
+  }
+  return user
+}
 
 const User = mongoose.model('Users', UserSchema)
 
