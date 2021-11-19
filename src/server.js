@@ -17,7 +17,7 @@ connectDB()
 
 const bootServer = async () => {
   const app = express()
-  //app.use(cors(corsOptions))
+  app.use(cors(corsOptions))
   app.use(helmet())
   app.use(express.json({ limit: '100kb' }))
   app.use('/v1', apiV1)

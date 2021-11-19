@@ -1,4 +1,5 @@
 import User from '@src/models/user.model'
+import env from '../config/environment'
 import { generateAccountNumber, generateRandomPassword } from '@src/utilities/user.utils'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '@src/utilities/constant'
@@ -143,7 +144,8 @@ export const logOutUser = async (req, res) => {
     await req.user.save()
     res.json({ message: 'Đăng xuất thành công' })
   } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi khi đăng xuất khỏi thiết bị')
   }
 }
 
@@ -153,19 +155,124 @@ export const logOutAll = async (req, res) => {
     await req.user.save()
     res.json({ message: 'Đăng xuất khỏi tất cả thiết bị thành công' })
   } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi khi đăng xuất khỏi tất cả thiết bị')
   }
 }
+
+paypal.configure({
+  'mode': 'sandbox',
+  'client_id': env.PAYPAL_CLIENT_ID,
+  'client_secret': env.PAYPAL_CLIENT_SECRET
+})
 
 export const chargeUser = async (req, res) => {
   //sb-v7mkg8597409@business.example.com
   //testsandbox     NC,^5NCl
-  paypal.configure({
-    'mode': 'sandbox', //sandbox or live
-    'client_id': 'ASwE2MUWBDU7vwUXj8K3MY3Mppt6amxqPMcyhvAPmTvWGrELroF78364LxmX51p16iqVt70md5KbYJ3l',
-    'client_secret': 'ECMQImtKavZTjrSE8lD8pl5TBvgsgiii-tJdqKaMNOjOirPAvajaU7fjpK8reBjT_hWO5c7Hm6OdqkzR'
+
+  //sb-q2eib8526496@personal.example.com
+  //wx<q-W8S
+  let create_payment_json = {
+    'intent': 'sale',
+    'payer': {
+      'payment_method': 'paypal'
+    },
+    'redirect_urls': {
+      'return_url': 'http://localhost:8080/v1/user/charge/success',
+      'cancel_url': 'http://127.0.0.1:5500/testPayPalFail.html'
+    },
+    'transactions': [{
+      'item_list': {
+        'items': [{
+          'name': 'nap tien vao tk',
+          'sku': '001',
+          'price': '5.00',
+          'currency': 'USD',
+          'quantity': 1
+        }]
+      },
+      'amount': {
+        'currency': 'USD',
+        'total': '10.0'
+      },
+      'description': 'This is the payment description.'
+    }]
+  }
+
+  await paypal.payment.create(create_payment_json, (error, payment) => {
+    if (error) {
+      throw error
+    } else {
+      for (let i = 0; i < payment.links.length; i++) {
+        if (payment.links[i].rel === 'approval_url') {
+          res.json({ url: payment.links[i].href })
+        }
+      }
+      console.log(payment)
+    }
   })
-  res.json({ url: 'https://google.com' })
+}
+
+export const chargeSubmitUser= async (req, res) => {
+  const payerId = req.query.PayerID
+  const paymentId = req.query.paymentId
+  if (!payerId || !paymentId) {
+    res.status(HttpStatusCode.NOT_FOUND)
+    throw new Error('Không tìm thấy payerId hoặc paymentId')
+  }
+  const execute_payment_json = {
+    'payer_id': payerId,
+    'transactions': [{
+      'amount': {
+        'currency': 'USD',
+        'total': '10.0'
+      }
+    }]
+  }
+  paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+    if (error) {
+      res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+      throw error
+    } else {
+      console.log(JSON.stringify(payment))
+      res.send()
+      //res.json(payment)
+    }
+  })
+}
+
+export const withdrawMoneyUser = async (req, res) => {
+  var sender_batch_id = Math.random().toString(36).substring(9)
+  console.log(req.body)
+  var create_payout_json = {
+    'sender_batch_header': {
+      'sender_batch_id': sender_batch_id,
+      'email_subject': 'Rút tiền từ LTS Bank'
+    },
+    'items': [
+      {
+        'recipient_type': 'EMAIL',
+        'amount': {
+          'value': req.body.money,
+          'currency': 'USD'
+        },
+        'receiver': req.body.email,
+        'note': 'Thank you.',
+        'sender_item_id': 'Rút tiền từ LTS Bank'
+      }
+    ]
+  }
+
+  var sync_mode = 'false'
+  paypal.payout.create(create_payout_json, sync_mode, function (error, payout) {
+    if (error) {
+      console.log(error.response)
+      throw error
+    } else {
+      console.log('Create Single Payout Response')
+      console.log(payout)
+    }
+  })
 }
 
 export { authUser, getUserProfile, registerUser, updateUserProfile }
