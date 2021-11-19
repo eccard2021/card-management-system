@@ -2,7 +2,7 @@ import User from '@src/models/user.model'
 import env from '../config/environment'
 import { generateAccountNumber, generateRandomPassword } from '@src/utilities/user.utils'
 import asyncHandler from 'express-async-handler'
-import { HttpStatusCode } from '@src/utilities/constant'
+import { HttpStatusCode } from '../utilities/constant'
 import sendEmail from './email.controller'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
@@ -88,8 +88,12 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Internal server error')
   }
   if (user) {
-    sendEmail(user.email, 'User information and password', `${JSON.stringify(user)}\npassword: ${password}`)
-    res.status(HttpStatusCode.CREATED).json({ message: 'Tạo tài khoản thành công, vui lòng kiểm tra email của bạn!' })
+    try {
+      sendEmail(user.email, 'User information and password', `${JSON.stringify(user)}\npassword: ${password}`)
+      res.status(HttpStatusCode.CREATED).json({ message: 'Tạo tài khoản thành công, vui lòng kiểm tra email của bạn!' })
+    } catch (error) {
+      res.status(HttpStatusCode.INTERNAL_SERVER).json({ message: 'Không thể gửi email!!' })
+    }
   }
   else {
     res.status(HttpStatusCode.BAD_REQUEST)
@@ -136,7 +140,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 })
 
-export const logOutUser = async (req, res) => {
+export const logOutUser = asyncHandler(async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter((token) => {
       return token.token != req.token
@@ -147,9 +151,9 @@ export const logOutUser = async (req, res) => {
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Lỗi khi đăng xuất khỏi thiết bị')
   }
-}
+})
 
-export const logOutAll = async (req, res) => {
+export const logOutAll = asyncHandler(async (req, res) => {
   try {
     req.user.tokens.splice(0, req.user.tokens.length)
     await req.user.save()
@@ -158,7 +162,7 @@ export const logOutAll = async (req, res) => {
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Lỗi khi đăng xuất khỏi tất cả thiết bị')
   }
-}
+})
 
 paypal.configure({
   'mode': 'sandbox',
@@ -166,7 +170,7 @@ paypal.configure({
   'client_secret': env.PAYPAL_CLIENT_SECRET
 })
 
-export const chargeUser = async (req, res) => {
+export const chargeUser = asyncHandler(async (req, res) => {
   //sb-v7mkg8597409@business.example.com
   //testsandbox     NC,^5NCl
 
@@ -178,70 +182,81 @@ export const chargeUser = async (req, res) => {
       'payment_method': 'paypal'
     },
     'redirect_urls': {
-      'return_url': 'http://localhost:8080/v1/user/charge/success',
-      'cancel_url': 'http://127.0.0.1:5500/testPayPalFail.html'
+      'return_url': `http://${env.APP_HOST}:8080/v1/user/charge/submit`,
+      'cancel_url': `http://${env.APP_HOST}:5500/testPayPalFail.html`
     },
     'transactions': [{
       'item_list': {
         'items': [{
-          'name': 'nap tien vao tk',
+          'name': 'Nạp tiền vào tài khoản LTS Bank',
           'sku': '001',
-          'price': '5.00',
+          'price': req.body.amount,
           'currency': 'USD',
           'quantity': 1
         }]
       },
       'amount': {
         'currency': 'USD',
-        'total': '10.0'
+        'total': req.body.amount
       },
-      'description': 'This is the payment description.'
+      'description': 'Nạp tiền vào tài khoản LTS Bank'
     }]
   }
 
-  await paypal.payment.create(create_payment_json, (error, payment) => {
+  paypal.payment.create(create_payment_json, (error, chargeInfo) => {
     if (error) {
       throw error
     } else {
-      for (let i = 0; i < payment.links.length; i++) {
-        if (payment.links[i].rel === 'approval_url') {
-          res.json({ url: payment.links[i].href })
+      for (let i = 0; i < chargeInfo.links.length; i++) {
+        if (chargeInfo.links[i].rel === 'approval_url') {
+          res.json({ url: chargeInfo.links[i].href })
         }
       }
-      console.log(payment)
     }
   })
-}
+})
 
-export const chargeSubmitUser= async (req, res) => {
+export const chargeSubmitUser = asyncHandler(async (req, res) => {
   const payerId = req.query.PayerID
   const paymentId = req.query.paymentId
   if (!payerId || !paymentId) {
     res.status(HttpStatusCode.NOT_FOUND)
     throw new Error('Không tìm thấy payerId hoặc paymentId')
   }
-  const execute_payment_json = {
-    'payer_id': payerId,
-    'transactions': [{
-      'amount': {
-        'currency': 'USD',
-        'total': '10.0'
-      }
-    }]
-  }
-  paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+  paypal.payment.get(paymentId, (error, chargeInfo) => {
     if (error) {
-      res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+      res.status(HttpStatusCode.NOT_FOUND)
       throw error
-    } else {
-      console.log(JSON.stringify(payment))
-      res.send()
-      //res.json(payment)
     }
+    const execute_payment_json = {
+      'payer_id': chargeInfo.payer.payer_info.payer_id,
+      'transactions': [{
+        'amount': chargeInfo.transactions[0].amount
+      }]
+    }
+    paypal.payment.execute(paymentId, execute_payment_json, (error, chargeSuccess) => {
+      if (error) {
+        res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+        throw error
+      } else {
+        //pass req.user into processAfterChargeSuccess
+        processAfterChargeSuccess()
+        res.status(HttpStatusCode.OK).json({ message: 'Nạp tiền từ Paypal thành công' })
+      }
+    })
   })
-}
+})
 
-export const withdrawMoneyUser = async (req, res) => {
+const processAfterChargeSuccess = asyncHandler(async (user, chargeSuccess) => {
+
+})
+
+export const withdrawMoneyUser = asyncHandler(async (req, res) => {
+
+})
+
+export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
+  //set id user to sender_batch_id
   var sender_batch_id = Math.random().toString(36).substring(9)
   console.log(req.body)
   var create_payout_json = {
@@ -262,17 +277,20 @@ export const withdrawMoneyUser = async (req, res) => {
       }
     ]
   }
-
-  var sync_mode = 'false'
-  paypal.payout.create(create_payout_json, sync_mode, function (error, payout) {
+  const SYNC_MODE = 'false'
+  paypal.payout.create(create_payout_json, SYNC_MODE, (error, withdrawInfo) => {
     if (error) {
-      console.log(error.response)
+      console.log(error)
       throw error
     } else {
-      console.log('Create Single Payout Response')
-      console.log(payout)
+      //pass req.user and withdrawInfo into processAfterWithdrawSuccess
+      processAfterWithdrawSuccess()
     }
   })
-}
+})
+
+const processAfterWithdrawSuccess = asyncHandler(async (user, withdrawInfo) => {
+
+})
 
 export { authUser, getUserProfile, registerUser, updateUserProfile }

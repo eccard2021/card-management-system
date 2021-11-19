@@ -15,7 +15,9 @@
     <div id="itemname">
       Nạp lúa
     </div>
-    <div id="itemprice">$5</div>
+    <div id="itemprice">
+      <input type="text" id="amount">
+    </div>
     <button class="btn" onclick="getPayment()">Buy</button>
   </div>
   <div id="ruttien">
@@ -24,6 +26,9 @@
     </div>
     <div id="itemprice">$10</div>
     <button class="btn" onclick="withdrawMoney()">Withdraw</button>
+    <input type="date" name="begin" id="date-test"
+        placeholder="dd-mm-yyyy" value=""
+        min="1997-01-01" max="2030-12-31">
   </div>
 </body>
 </html>
@@ -33,8 +38,7 @@
       method: 'post',
       url: 'http://localhost:8080/v1/user/charge',
       data: {
-        firstName: 'First name',
-        lastName: 'Last name'
+        amount: document.getElementById('amount').value
       },
       credentials: 'include',
       //withCredentials: true
@@ -52,7 +56,8 @@
       url: 'http://localhost:8080/v1/user/withdraw-money',
       data: {
         email: 'sb-q2eib8526496@personal.example.com',
-        money: 10
+        money: 10,
+        date: document.getElementById('date-test').value
       }
     }).then(function (response) {
       window.open(response.data.url, '_blank')

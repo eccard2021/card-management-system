@@ -24,7 +24,7 @@ const bootServer = async () => {
   app.use(notFound)
   app.use(errHandler)
 
-  app.listen(env.PORT, env.HOST, () => {
-    console.log(`API Bank Management on ${env.HOST}:${env.PORT}`)
+  app.listen(env.APP_PORT, env.APP_HOST, () => {
+    console.log(`API Bank Management on ${env.APP_HOST}:${env.APP_PORT}`)
   })
 }
