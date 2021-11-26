@@ -29,8 +29,8 @@ const cardListSchema = mongoose.Schema({
     default: false
   },
   accOwner: {
-    type: mongoose.Types.ObjectId,
-    ref: 'Account',
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users',
     required: true,
     default: null
   },

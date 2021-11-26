@@ -10,6 +10,15 @@ export const HttpStatusCode = {
   SERVICE_UNAVAILABLE: 503
 }
 
+export const SERVICE_ACTION_TYPE = {
+  CHARGE: 'charge',
+  WITHDRAW: 'withdraw',
+  TRANSFER: 'transfer',
+  PAYMENT: 'payment',
+  MONTHLY_FEE: 'monthly_fee',
+  SERVICE_FEE: 'service_fee'
+}
+
 
 let whitelist = [`http://${env.HOST}:3000`, 'http://127.0.0.1:5500']
 export const corsOptions = {

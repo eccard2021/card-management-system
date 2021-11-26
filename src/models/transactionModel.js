@@ -1,24 +1,50 @@
 import mongoose from 'mongoose'
 
 const TransactionLogSchema = mongoose.Schema({
-  fromNumber: { //stk thuc hien
-    type: String,
-    required: true
+  from: {
+    bank: {
+      type: String,
+      required: true
+    },
+    number: { //stk thuc hien
+      type: String,
+      required: true
+    },
+    remitterName: {
+      type: String,
+      require: true
+    }
   },
   transType: { //loai giao dich
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Services',
     required: true
   },
-  toNumber: { //stk nhan
-    type: String,
-    required: true,
-    default: null
+  to: {
+    bank: {
+      type: String,
+      required: true
+    },
+    number: { //stk nhan
+      type: String,
+      required: true
+    },
+    receiverName: {
+      type: String,
+      require: true
+    }
   },
-  amount: {
+  transactionAmount: {
     type: Number,
-    required: true
+    required: true,
+    min: 0
   },
-  note: {
+  transactionFee: {
+    type: Number,
+    require: true,
+    min: 0
+  },
+  description: {
     type: String,
     required: true
   }
@@ -26,6 +52,6 @@ const TransactionLogSchema = mongoose.Schema({
   timestamps: true
 })
 
-const TransactionLog = mongoose.model('TransactionLog', TransactionLogSchema)
+const TransactionLog = mongoose.model('TransactionLogs', TransactionLogSchema)
 
 export default TransactionLog

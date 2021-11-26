@@ -14,8 +14,8 @@ router.route('/profile').get(protect, getUserProfile).put(protect, validateModif
 router.route('/register').post(validateRegisterUser(), registerUser)
 router.route('/logout').post(protect, logOutUser)
 router.route('/logoutall').post(protect, logOutAll)
-router.route('/charge').post(chargeUser)
-router.route('/charge/submit').get(chargeSubmitUser)
+router.route('/charge').post(protect, chargeUser)
+router.route('/charge/submit').post(protect, chargeSubmitUser)
 router.route('/withdraw-money').post(withdrawMoneyUser)
 router.route('/withdraw-money/submit').post(withdrawMoneySubmitUser)
 export const userRoutes = router

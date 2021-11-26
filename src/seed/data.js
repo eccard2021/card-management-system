@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import { SERVICE_ACTION_TYPE } from '../utilities/constant'
 
 export const users = [
   {
@@ -336,5 +337,38 @@ export const domDebits = [
     yearlyFee: 0.25,
     inDrawFee: 0.05,
     outDrawFee: 0.1
+  }
+]
+
+export const services = [
+  {
+    service_name: 'NAP TIEN PAYPAL',
+    fixedfee: 0.6,
+    fee_rate: 0.035,
+    action: SERVICE_ACTION_TYPE.CHARGE
+  },
+  {
+    service_name: 'RUT TIEN PAYPAL',
+    fixedfee: 0,
+    fee_rate: 0,
+    action: SERVICE_ACTION_TYPE.WITHDRAW
+  },
+  {
+    service_name: 'CHUYEN TIEN TRONG NGAN HANG',
+    fixedfee: 0,
+    fee_rate: 0.003,
+    action: SERVICE_ACTION_TYPE.TRANSFER
+  },
+  {
+    service_name: 'THANH TOAN ONLINE',
+    fixedfee: 0,
+    fee_rate: 0.035,
+    action: SERVICE_ACTION_TYPE.PAYMENT
+  },
+  {
+    service_name: 'PHI DUY TRI TAI KHOAN',
+    fixedfee: 0.49,
+    fee_rate: 0.0349,
+    action: SERVICE_ACTION_TYPE.MONTHLY_FEE
   }
 ]

@@ -12,13 +12,13 @@ const protect = asyncHandler(async (req, res, next) => {
       req.user = await User.findOne({ _id: decoded._id, 'tokens.token': token }).select('-password')
       if (!req.user) {
         res.status(HttpStatusCode.UNAUTHORIZED)
-        throw new Error()
+        throw new Error('Unauthorized token')
       }
       next()
     } catch (error) {
       console.error(error)
       res.status(HttpStatusCode.UNAUTHORIZED)
-      throw new Error()
+      throw new Error('Unauthorized token')
     }
   }
 })

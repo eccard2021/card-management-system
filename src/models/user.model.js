@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import Jwt from 'jsonwebtoken'
 import env from '../config/environment'
+import TransactionLog from './transactionModel'
+import Service from './service.model'
 
 const UserSchema = mongoose.Schema({
   //noi dung KH nhap
@@ -64,22 +66,58 @@ const UserSchema = mongoose.Schema({
       type: String,
       required: true
     }
+  }],
+  balanceFluctuations: [{
+    transactionLog: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TransactionLogs',
+      required: true
+    },
+    amount: {
+      type: Number,
+      require: true
+    },
+    endingBalance: {
+      type: Number,
+      require: true
+    },
+    description: {
+      type: String
+    }
+  }, {
+    timestamps: true
   }]
 }, {
   timestamps: true
 })
 
+//--------------------------------------METHODS--------------------------------------------
+
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password)
 }
 
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next()
+UserSchema.methods.updateBalance = async function (serviceName, transactionLog) {
+  const user = this
+  try {
+    const service = await Service.findOne({ service_name: serviceName }).exec()
+    transactionLog.transType = service._id
+    await service.calculateServiceFee(transactionLog)
+    const log = await TransactionLog.create(transactionLog)
+    log.save()
+    user.balance = (user.balance + transactionLog.transactionAmount - transactionLog.transactionFee).toFixed(2)
+    user.balanceFluctuations.push({
+      transactionLog: log._id,
+      amount: log.transactionAmount,
+      endingBalance: this.balance,
+      description: log.description
+    })
+    await user.save()
   }
-  const salt = await bcrypt.genSalt(10)
-  this.password = await bcrypt.hash(this.password, salt)
-})
+  catch (error) {
+    console.log(error)
+  }
+}
 
 UserSchema.methods.generateAuthToken = async function () {
   const user = this
@@ -89,17 +127,40 @@ UserSchema.methods.generateAuthToken = async function () {
   return token
 }
 
+UserSchema.methods.logOut = async function (token) {
+  this.tokens.filter((tk) => {
+    return tk.token != token
+  })
+  await this.save()
+}
+
+UserSchema.methods.logOutAll = async function () {
+  this.tokens.splice(0, this.tokens.length)
+  await this.save()
+}
+//--------------------------------------STATICS--------------------------------------------
+
 UserSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email })
-  if (!user) {
-    throw new Error('Email hoặc password không hợp lệ')
-  }
-  const isPasswordMatch = await user.matchPassword(password)
-  if (!isPasswordMatch) {
+  if (!user || await user.matchPassword(password)) {
     throw new Error('Email hoặc password không hợp lệ')
   }
   return user
 }
+
+UserSchema.statics.isExist = async function (email) {
+  return await User.findOne({ email }) != null
+}
+
+//--------------------------------------HOOKS--------------------------------------------
+
+UserSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+  }
+  next()
+})
 
 const User = mongoose.model('Users', UserSchema)
 

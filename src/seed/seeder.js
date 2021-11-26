@@ -1,7 +1,8 @@
 require('dotenv').config()
-import { users, intCredits, intDebits, domDebits } from './data.js'
+import { users, intCredits, intDebits, domDebits, services } from './data.js'
 import User from '../models/user.model'
 import { IntCredits, IntDebits, DomDebits } from '../models/cardTypes.model.js'
+import Service from '../models/service.model.js'
 import { connectDB } from '../config/db'
 
 connectDB()
@@ -16,6 +17,7 @@ const deleteData = async () => {
   await IntCredits.deleteMany()
   await IntDebits.deleteMany()
   await DomDebits.deleteMany()
+  await Service.deleteMany()
 }
 
 const importData = async () => {
@@ -25,6 +27,7 @@ const importData = async () => {
     await IntCredits.insertMany(intCredits)
     await IntDebits.insertMany(intDebits)
     await DomDebits.insertMany(domDebits)
+    await Service.insertMany(services)
     console.log('Data Imported !')
     process.exit()
 

@@ -2,15 +2,17 @@ import User from '@src/models/user.model'
 import env from '../config/environment'
 import { generateAccountNumber, generateRandomPassword } from '@src/utilities/user.utils'
 import asyncHandler from 'express-async-handler'
-import { HttpStatusCode } from '../utilities/constant'
+import { HttpStatusCode, SERVICE_ACTION_TYPE } from '../utilities/constant'
 import sendEmail from './email.controller'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
+import { createTransactionLog } from './transactionLog.controller'
 
 
 //@desc auth user and get token
 //@route POST /api/users/login
 //@access public
+const SYNC_MODE = 'false'
 const authUser = asyncHandler(async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -53,8 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
     return
   }
   const newUser = req.body
-  const userExists = await User.findOne({ email: newUser.email })
-  if (userExists) {
+  if (await User.isExist()) {
     res.status(HttpStatusCode.BAD_REQUEST)
     throw new Error('Người dùng đã tồn tại!!')
   }
@@ -105,7 +106,7 @@ const registerUser = asyncHandler(async (req, res) => {
 //@route GET /api/users/profile
 //@access private
 const getUserProfile = asyncHandler(async (req, res) => {
-  let user = await User.findById(req.user._id).select('-password -tokens -__v')
+  let user = await User.findById(req.user._id).select('-password -tokens -__v -balanceFluctuations')
   if (user) {
     res.json(user)
   }
@@ -142,10 +143,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
 export const logOutUser = asyncHandler(async (req, res) => {
   try {
-    req.user.tokens = req.user.tokens.filter((token) => {
-      return token.token != req.token
-    })
-    await req.user.save()
+    req.user.logOut(req.token)
     res.json({ message: 'Đăng xuất thành công' })
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
@@ -155,8 +153,7 @@ export const logOutUser = asyncHandler(async (req, res) => {
 
 export const logOutAll = asyncHandler(async (req, res) => {
   try {
-    req.user.tokens.splice(0, req.user.tokens.length)
-    await req.user.save()
+    req.user.logOutAll()
     res.json({ message: 'Đăng xuất khỏi tất cả thiết bị thành công' })
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
@@ -182,7 +179,7 @@ export const chargeUser = asyncHandler(async (req, res) => {
       'payment_method': 'paypal'
     },
     'redirect_urls': {
-      'return_url': `http://${env.APP_HOST}:8080/v1/user/charge/submit`,
+      'return_url': `http://${env.APP_HOST}:3001/user/charge/submit`,
       'cancel_url': `http://${env.APP_HOST}:5500/testPayPalFail.html`
     },
     'transactions': [{
@@ -207,9 +204,11 @@ export const chargeUser = asyncHandler(async (req, res) => {
     if (error) {
       throw error
     } else {
+      //console.log(JSON.stringify(chargeInfo))
       for (let i = 0; i < chargeInfo.links.length; i++) {
         if (chargeInfo.links[i].rel === 'approval_url') {
           res.json({ url: chargeInfo.links[i].href })
+          return
         }
       }
     }
@@ -217,16 +216,20 @@ export const chargeUser = asyncHandler(async (req, res) => {
 })
 
 export const chargeSubmitUser = asyncHandler(async (req, res) => {
-  const payerId = req.query.PayerID
-  const paymentId = req.query.paymentId
+  const payerId = req.body.PayerID
+  const paymentId = req.body.paymentId
   if (!payerId || !paymentId) {
     res.status(HttpStatusCode.NOT_FOUND)
     throw new Error('Không tìm thấy payerId hoặc paymentId')
   }
-  paypal.payment.get(paymentId, (error, chargeInfo) => {
+  paypal.payment.get(paymentId, asyncHandler((error, chargeInfo) => {
     if (error) {
       res.status(HttpStatusCode.NOT_FOUND)
       throw error
+    }
+    if (chargeInfo.payer.status !== 'VERIFIED') {
+      res.status(HttpStatusCode.NOT_FOUND)
+      throw new Error('Giao dịnh không tồn tại hoặc chưa được xác nhận')
     }
     const execute_payment_json = {
       'payer_id': chargeInfo.payer.payer_info.payer_id,
@@ -234,21 +237,34 @@ export const chargeSubmitUser = asyncHandler(async (req, res) => {
         'amount': chargeInfo.transactions[0].amount
       }]
     }
-    paypal.payment.execute(paymentId, execute_payment_json, (error, chargeSuccess) => {
+    paypal.payment.execute(paymentId, execute_payment_json, async (error, chargeSuccess) => {
       if (error) {
-        res.status(HttpStatusCode.INTERNAL_SERVER).send(error)
+        res.status(HttpStatusCode.INTERNAL_SERVER)
         throw error
-      } else {
-        //pass req.user into processAfterChargeSuccess
-        processAfterChargeSuccess()
+      }
+      try {
+        let transactionLog = {
+          from: {
+            bank: 'PayPal',
+            number: chargeSuccess.payer.payer_info.email,
+            remitterName: `${chargeSuccess.payer.payer_info.first_name} ${chargeSuccess.payer.payer_info.last_name}`
+          },
+          to: {
+            bank: 'LTSBANK',
+            number: req.user.accNumber,
+            receiverName: req.user.name
+          },
+          transactionAmount: Number(chargeSuccess.transactions[0].amount.total),
+          description: chargeSuccess.transactions[0].description
+        }
+        await req.user.updateBalance('NAP TIEN PAYPAL', transactionLog)
         res.status(HttpStatusCode.OK).json({ message: 'Nạp tiền từ Paypal thành công' })
+      } catch (error) {
+        //can refund????
+        console.log(error)
       }
     })
-  })
-})
-
-const processAfterChargeSuccess = asyncHandler(async (user, chargeSuccess) => {
-
+  }))
 })
 
 export const withdrawMoneyUser = asyncHandler(async (req, res) => {
@@ -277,20 +293,13 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
       }
     ]
   }
-  const SYNC_MODE = 'false'
   paypal.payout.create(create_payout_json, SYNC_MODE, (error, withdrawInfo) => {
     if (error) {
       console.log(error)
       throw error
     } else {
-      //pass req.user and withdrawInfo into processAfterWithdrawSuccess
-      processAfterWithdrawSuccess()
+      let i = 3
     }
   })
 })
-
-const processAfterWithdrawSuccess = asyncHandler(async (user, withdrawInfo) => {
-
-})
-
 export { authUser, getUserProfile, registerUser, updateUserProfile }
