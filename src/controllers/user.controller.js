@@ -6,7 +6,6 @@ import { HttpStatusCode, SERVICE_ACTION_TYPE } from '../utilities/constant'
 import sendEmail from './email.controller'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
-import { createTransactionLog } from './transactionLog.controller'
 
 
 //@desc auth user and get token
@@ -302,4 +301,9 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
     }
   })
 })
+
+export const forgotPassword = asyncHandler(async function () {
+
+})
+
 export { authUser, getUserProfile, registerUser, updateUserProfile }
