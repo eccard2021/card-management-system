@@ -56,6 +56,11 @@ const UserSchema = mongoose.Schema({
     required: true,
     default: false
   },
+  isActive: { //khong gui cai nay
+    type: Boolean,
+    required: true,
+    default: true
+  },
   balance: {
     type: Number,
     required: true,
@@ -70,7 +75,7 @@ const UserSchema = mongoose.Schema({
   balanceFluctuations: [{
     transactionLog: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'TransactionLogs',
+      ref: 'transactionlogs',
       required: true
     },
     amount: {
@@ -83,9 +88,11 @@ const UserSchema = mongoose.Schema({
     },
     description: {
       type: String
+    },
+    createAt: {
+      type: Date,
+      default: Date.now()
     }
-  }, {
-    timestamps: true
   }]
 }, {
   timestamps: true

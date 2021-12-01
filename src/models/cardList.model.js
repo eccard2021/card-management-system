@@ -6,15 +6,7 @@ const cardListSchema = mongoose.Schema({
     unique: true,
     required: true
   },
-  PIN: {
-    type: String,
-    required: true
-  },
   CVV: {
-    type: String,
-    required: true
-  },
-  cardName: { //standard, (silver), gold (dang tinh bo silver, giam tai)
     type: String,
     required: true
   },
@@ -23,15 +15,9 @@ const cardListSchema = mongoose.Schema({
     required: true,
     default: false
   },
-  isOwned: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
   accOwner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
-    required: true,
     default: null
   },
   validDate: {
@@ -42,9 +28,15 @@ const cardListSchema = mongoose.Schema({
     type: Date,
     required: true
   },
+  cardTypeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    refPath: 'cardType'
+  },
   cardType: { //Xác định là GC, GD hay LD
     type: String,
-    required: true
+    required: true,
+    enum: ['intcredits', 'intdebits', 'domdebits']
   }
 }, {
   timestamps: true

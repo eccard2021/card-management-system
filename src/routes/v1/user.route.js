@@ -1,7 +1,7 @@
 import express from 'express'
 import {
   authUser, getUserProfile, registerUser,
-  updateUserProfile, logOutUser, logOutAll, chargeUser, chargeSubmitUser,
+  updateUserPassword, logOutUser, logOutAll, chargeUser, chargeSubmitUser,
   withdrawMoneyUser, withdrawMoneySubmitUser, forgotPassword
 } from '../../controllers/user.controller'
 import { protect } from '../../middlewares/auth.middleware'
@@ -10,7 +10,7 @@ import { validateRegisterUser, validateLoginUser, validateModifyPasswordUser } f
 const router = express.Router()
 
 router.post('/login', validateLoginUser(), authUser)
-router.route('/profile').get(protect, getUserProfile).put(protect, validateModifyPasswordUser(), updateUserProfile)
+router.route('/profile').get(protect, getUserProfile).put(protect, validateModifyPasswordUser(), updateUserPassword)
 router.route('/register').post(validateRegisterUser(), registerUser)
 router.route('/logout').post(protect, logOutUser)
 router.route('/logoutall').post(protect, logOutAll)

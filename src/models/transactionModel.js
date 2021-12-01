@@ -13,6 +13,10 @@ const TransactionLogSchema = mongoose.Schema({
     remitterName: {
       type: String,
       require: true
+    },
+    UID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users'
     }
   },
   transType: { //loai giao dich
@@ -32,6 +36,10 @@ const TransactionLogSchema = mongoose.Schema({
     receiverName: {
       type: String,
       require: true
+    },
+    UID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users'
     }
   },
   transactionAmount: {
@@ -52,6 +60,6 @@ const TransactionLogSchema = mongoose.Schema({
   timestamps: true
 })
 
-const TransactionLog = mongoose.model('TransactionLogs', TransactionLogSchema)
+const TransactionLog = mongoose.model('transactionlogs', TransactionLogSchema)
 
 export default TransactionLog

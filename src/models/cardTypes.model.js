@@ -7,6 +7,10 @@ const IntCreditsSchema = mongoose.Schema({
     require: true,
     unique: true
   },
+  publisher: {
+    type: String,
+    require: true
+  },
   cardName: {
     type: String,
     require: true
@@ -72,6 +76,10 @@ const IntDebitsSchema = mongoose.Schema({
     type: String,
     require: true,
     unique: true
+  },
+  publisher: {
+    type: String,
+    require: true
   },
   cardName: {
     type: String,
@@ -142,6 +150,10 @@ const DomDebitsSchema = mongoose.Schema({
     type: String,
     require: true,
     unique: true
+  },
+  publisher: {
+    type: String,
+    require: true
   },
   cardName: {
     type: String,

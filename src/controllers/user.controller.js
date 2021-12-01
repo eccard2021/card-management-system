@@ -1,16 +1,12 @@
 import User from '@src/models/user.model'
 import env from '../config/environment'
-import { generateAccountNumber, generateRandomPassword } from '@src/utilities/user.utils'
+import * as UserService from '../services/user.service'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode, SERVICE_ACTION_TYPE } from '../utilities/constant'
-import sendEmail from './email.controller'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
 
 
-//@desc auth user and get token
-//@route POST /api/users/login
-//@access public
 const SYNC_MODE = 'false'
 const authUser = asyncHandler(async (req, res) => {
   const errors = validationResult(req)
@@ -19,34 +15,14 @@ const authUser = asyncHandler(async (req, res) => {
     return
   }
   const { email, password } = req.body
-  const user = await User.findByCredentials(email, password)
+  const user = await UserService.findByCredentials(email, password)
   if (!user) {
     res.status(HttpStatusCode.UNAUTHORIZED)
     throw new Error('Email hoặc password không hợp lệ')
   }
-  const token = await user.generateAuthToken()
-  //response user information to front-end
-  res.json({
-    _id: user._id,
-    name: user.name,
-    birth: user.birth,
-    isMale: user.isMale,
-    personalIdNumber: user.personalIdNumber,
-    phoneNumber: user.phoneNumber,
-    email: user.email,
-    homeAddress: user.homeAddress,
-    job: user.job,
-    accNumber: user.accNumber,
-    isAdmin: user.isAdmin,
-    balance: user.balance,
-    token: token
-  })
-
+  res.json(user)
 })
 
-//@desc REGISTER new user
-//@route POST /api/users
-//@access public
 const registerUser = asyncHandler(async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -54,90 +30,45 @@ const registerUser = asyncHandler(async (req, res) => {
     return
   }
   const newUser = req.body
-  if (await User.isExist()) {
+  if (await User.isExist(newUser.email)) {
     res.status(HttpStatusCode.BAD_REQUEST)
     throw new Error('Người dùng đã tồn tại!!')
   }
-  let user, password = generateRandomPassword()
   try {
-    let numberOfUser = (await User.count({})) + 1
-    user = await User.create({
-      name: newUser.name,
-      birth: new Date(newUser.birth),
-      isMale: newUser.isMale,
-      personalIdNumber: {
-        number: newUser.personalIdNumber.number,
-        issueDate: newUser.personalIdNumber.issueDate,
-        issuePlace: newUser.personalIdNumber.issuePlace
-      },
-      phoneNumber: newUser.phoneNumber,
-      email: newUser.email,
-      homeAddress: newUser.homeAddress,
-      job: {
-        title: newUser.job.title,
-        workAddress: newUser.job.workAddress,
-        salary: newUser.job.salary
-      },
-      accNumber: generateAccountNumber(numberOfUser),
-      password: password,
-      isAdmin: false,
-      balance: 0
-    })
-  } catch (error) {
+    await UserService.registerUser(newUser)
+    res.status(HttpStatusCode.CREATED)
+      .json({ message: 'Tạo tài khoản thành công, vui lòng kiểm tra email của bạn!' })
+  } catch {
     res.status(HttpStatusCode.INTERNAL_SERVER)
-    throw new Error('Internal server error')
-  }
-  if (user) {
-    try {
-      sendEmail(user.email, 'User information and password', `${JSON.stringify(user)}\npassword: ${password}`)
-      res.status(HttpStatusCode.CREATED).json({ message: 'Tạo tài khoản thành công, vui lòng kiểm tra email của bạn!' })
-    } catch (error) {
-      res.status(HttpStatusCode.INTERNAL_SERVER).json({ message: 'Không thể gửi email!!' })
-    }
-  }
-  else {
-    res.status(HttpStatusCode.BAD_REQUEST)
-    throw new Error('Invalid user data')
+      .json({ message: 'INTERNAL SERVER ERROR' })
   }
 })
 
-//@desc get user profile
-//@route GET /api/users/profile
-//@access private
 const getUserProfile = asyncHandler(async (req, res) => {
-  let user = await User.findById(req.user._id).select('-password -tokens -__v -balanceFluctuations')
+  let userId = req.user._id
+  const user = await UserService.getUserProfileById(userId)
   if (user) {
     res.json(user)
   }
   else {
     res.status(HttpStatusCode.NOT_FOUND)
-    throw new Error('User not found')
+      .json({ message: 'User not found' })
   }
 })
 
-//@desc update user profile
-//@route PUT /api/users/profile
-//@access private
-const updateUserProfile = asyncHandler(async (req, res) => {
+const updateUserPassword = asyncHandler(async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     res.status(422).json({ errors: errors.array() })
     return
   }
-  const user = await User.findById(req.user._id)
-
-  if (user) {
-    if (req.body.currentPassword && (await user.matchPassword(req.body.currentPassword))) {
-      user.password = req.body.newPassword
-      await user.save()
-      res.json({ message: 'Thay đổi mật khẩu thành công, vui lòng đăng nhập lại' })
-    } else {
-      res.status(HttpStatusCode.UNAUTHORIZED).json({ message: 'Mật khẩu cũ không khớp!!' })
-    }
-  } else {
-    res.status(HttpStatusCode.NOT_FOUND)
-    throw new Error('User not found')
+  const userId = req.user._id
+  const passwordChange = {
+    currentPassword: req.body.currentPassword,
+    newPassword: req.newPassword
   }
+  const result = await UserService.updateUserPassword(userId, passwordChange)
+  res.status(result.status).json({ message: result.message })
 })
 
 export const logOutUser = asyncHandler(async (req, res) => {
@@ -146,7 +77,7 @@ export const logOutUser = asyncHandler(async (req, res) => {
     res.json({ message: 'Đăng xuất thành công' })
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
-    throw new Error('Lỗi khi đăng xuất khỏi thiết bị')
+      .json({ message: 'Lỗi khi đăng xuất khỏi thiết bị' })
   }
 })
 
@@ -156,7 +87,7 @@ export const logOutAll = asyncHandler(async (req, res) => {
     res.json({ message: 'Đăng xuất khỏi tất cả thiết bị thành công' })
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
-    throw new Error('Lỗi khi đăng xuất khỏi tất cả thiết bị')
+      .json({ message: 'Lỗi khi đăng xuất khỏi tất cả thiết bị' })
   }
 })
 
@@ -306,4 +237,4 @@ export const forgotPassword = asyncHandler(async function () {
 
 })
 
-export { authUser, getUserProfile, registerUser, updateUserProfile }
+export { authUser, getUserProfile, registerUser, updateUserPassword }
