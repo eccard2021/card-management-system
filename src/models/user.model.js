@@ -4,6 +4,7 @@ import Jwt from 'jsonwebtoken'
 import env from '../config/environment'
 import TransactionLog from './transactionModel'
 import Service from './service.model'
+import Token from './token.model'
 
 const UserSchema = mongoose.Schema({
   //noi dung KH nhap
@@ -66,12 +67,6 @@ const UserSchema = mongoose.Schema({
     required: true,
     default: 0
   },
-  tokens: [{
-    token: {
-      type: String,
-      required: true
-    }
-  }],
   balanceFluctuations: [{
     transactionLog: {
       type: mongoose.Schema.Types.ObjectId,
@@ -112,7 +107,7 @@ UserSchema.methods.updateBalance = async function (serviceName, transactionLog) 
     await service.calculateServiceFee(transactionLog)
     const log = await TransactionLog.create(transactionLog)
     log.save()
-    user.balance = (user.balance + transactionLog.transactionAmount - transactionLog.transactionFee).toFixed(2)
+    user.balance = (user.balance + service.coefficient * transactionLog.transactionAmount - transactionLog.transactionFee).toFixed(2)
     user.balanceFluctuations.push({
       transactionLog: log._id,
       amount: log.transactionAmount,
@@ -129,21 +124,21 @@ UserSchema.methods.updateBalance = async function (serviceName, transactionLog) 
 UserSchema.methods.generateAuthToken = async function () {
   const user = this
   const token = Jwt.sign({ _id: user._id }, env.JWT_SECRET)
-  user.tokens = user.tokens.concat({ token })
-  await user.save()
+  let tokenSave = await Token.create({
+    userId: user._id,
+    tokenType: 'login',
+    token: token
+  })
+  await tokenSave.save()
   return token
 }
 
 UserSchema.methods.logOut = async function (token) {
-  this.tokens.filter((tk) => {
-    return tk.token != token
-  })
-  await this.save()
+  await Token.deleteOne({ userId: mongoose.Types.ObjectId(this._id), token: token.token, tokenType: 'login' })
 }
 
 UserSchema.methods.logOutAll = async function () {
-  this.tokens.splice(0, this.tokens.length)
-  await this.save()
+  await Token.deleteMany({ userId: mongoose.Types.ObjectId(this._id), tokenType: 'login' })
 }
 //--------------------------------------STATICS--------------------------------------------
 

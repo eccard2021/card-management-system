@@ -6,6 +6,10 @@ const cardListSchema = mongoose.Schema({
     unique: true,
     required: true
   },
+  publisher: {
+    type: String,
+    require: true
+  },
   CVV: {
     type: String,
     required: true
@@ -22,26 +26,26 @@ const cardListSchema = mongoose.Schema({
   },
   validDate: {
     type: Date,
-    require: true
+    default: null
   },
   expiredDate: {
     type: Date,
-    required: true
+    default: null
   },
   cardTypeId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     refPath: 'cardType'
   },
-  cardType: { //Xác định là GC, GD hay LD
+  cardType: {
     type: String,
     required: true,
-    enum: ['intcredits', 'intdebits', 'domdebits']
+    enum: ['IntCredits', 'IntDebits', 'DomDebits']
   }
 }, {
   timestamps: true
 })
 
-const cardList = mongoose.model('cardList', cardListSchema)
+const CardList = mongoose.model('cardList', cardListSchema)
 
-export default cardList
+export default CardList

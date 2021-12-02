@@ -2,12 +2,11 @@ import User from '@src/models/user.model'
 import env from '../config/environment'
 import * as UserService from '../services/user.service'
 import asyncHandler from 'express-async-handler'
-import { HttpStatusCode, SERVICE_ACTION_TYPE } from '../utilities/constant'
+import { HttpStatusCode } from '../utilities/constant'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
 
 
-const SYNC_MODE = 'false'
 const authUser = asyncHandler(async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -73,11 +72,12 @@ const updateUserPassword = asyncHandler(async (req, res) => {
 
 export const logOutUser = asyncHandler(async (req, res) => {
   try {
-    req.user.logOut(req.token)
+    await req.user.logOut(req.token)
     res.json({ message: 'Đăng xuất thành công' })
   } catch (error) {
+    console.log(error)
     res.status(HttpStatusCode.INTERNAL_SERVER)
-      .json({ message: 'Lỗi khi đăng xuất khỏi thiết bị' })
+    throw Error('Lỗi khi đăng xuất khỏi thiết bị')
   }
 })
 
@@ -103,134 +103,69 @@ export const chargeUser = asyncHandler(async (req, res) => {
 
   //sb-q2eib8526496@personal.example.com
   //wx<q-W8S
-  let create_payment_json = {
-    'intent': 'sale',
-    'payer': {
-      'payment_method': 'paypal'
-    },
-    'redirect_urls': {
-      'return_url': `http://${env.APP_HOST}:3001/user/charge/submit`,
-      'cancel_url': `http://${env.APP_HOST}:5500/testPayPalFail.html`
-    },
-    'transactions': [{
-      'item_list': {
-        'items': [{
-          'name': 'Nạp tiền vào tài khoản LTS Bank',
-          'sku': '001',
-          'price': req.body.amount,
-          'currency': 'USD',
-          'quantity': 1
-        }]
-      },
-      'amount': {
-        'currency': 'USD',
-        'total': req.body.amount
-      },
-      'description': 'Nạp tiền vào tài khoản LTS Bank'
-    }]
+  const { amount } = req.body.amount
+  try {
+    await UserService.chargeMoneyInit(amount, res)
+  } catch (error) {
+    req.status(HttpStatusCode.INTERNAL_SERVER)
+    throw Error('Không thể khởi tạo giao dịch')
   }
-
-  paypal.payment.create(create_payment_json, (error, chargeInfo) => {
-    if (error) {
-      throw error
-    } else {
-      //console.log(JSON.stringify(chargeInfo))
-      for (let i = 0; i < chargeInfo.links.length; i++) {
-        if (chargeInfo.links[i].rel === 'approval_url') {
-          res.json({ url: chargeInfo.links[i].href })
-          return
-        }
-      }
-    }
-  })
 })
 
 export const chargeSubmitUser = asyncHandler(async (req, res) => {
-  const payerId = req.body.PayerID
-  const paymentId = req.body.paymentId
-  if (!payerId || !paymentId) {
-    res.status(HttpStatusCode.NOT_FOUND)
-    throw new Error('Không tìm thấy payerId hoặc paymentId')
+  const info = {
+    payerId: req.body.PayerID,
+    paymentId: req.body.paymentId,
+    accNumber: req.user.accNumber,
+    name: req.user.name,
+    userId: req.user._id
   }
-  paypal.payment.get(paymentId, asyncHandler((error, chargeInfo) => {
-    if (error) {
-      res.status(HttpStatusCode.NOT_FOUND)
-      throw error
-    }
-    if (chargeInfo.payer.status !== 'VERIFIED') {
-      res.status(HttpStatusCode.NOT_FOUND)
-      throw new Error('Giao dịnh không tồn tại hoặc chưa được xác nhận')
-    }
-    const execute_payment_json = {
-      'payer_id': chargeInfo.payer.payer_info.payer_id,
-      'transactions': [{
-        'amount': chargeInfo.transactions[0].amount
-      }]
-    }
-    paypal.payment.execute(paymentId, execute_payment_json, async (error, chargeSuccess) => {
-      if (error) {
-        res.status(HttpStatusCode.INTERNAL_SERVER)
-        throw error
-      }
-      try {
-        let transactionLog = {
-          from: {
-            bank: 'PayPal',
-            number: chargeSuccess.payer.payer_info.email,
-            remitterName: `${chargeSuccess.payer.payer_info.first_name} ${chargeSuccess.payer.payer_info.last_name}`
-          },
-          to: {
-            bank: 'LTSBANK',
-            number: req.user.accNumber,
-            receiverName: req.user.name
-          },
-          transactionAmount: Number(chargeSuccess.transactions[0].amount.total),
-          description: chargeSuccess.transactions[0].description
-        }
-        await req.user.updateBalance('NAP TIEN PAYPAL', transactionLog)
-        res.status(HttpStatusCode.OK).json({ message: 'Nạp tiền từ Paypal thành công' })
-      } catch (error) {
-        //can refund????
-        console.log(error)
-      }
-    })
-  }))
+  try {
+    await UserService.chargeMoneyProcess()
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Không thể thực hiện giao dịch')
+  }
 })
 
 export const withdrawMoneyUser = asyncHandler(async (req, res) => {
+  const withdrawInfo = {
+    emailPayPal: req.body.emailPayPal,
+    amount: req.body.amount
+  }
+  try {
+    await UserService.sendMailWithdraw(req.user, withdrawInfo)
+    res.status(HttpStatusCode.OK).json({ message: 'Đã gửi email xác nhận rút tiền đến tài khoản của bạn, vui lòng kiểm tra email' })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw Error('Không thể gửi mail')
+  }
+})
 
+export const getWithdrawMoneyInfoUser = asyncHandler(async function (req, res) {
+  try {
+    let info = req.withdrawInfo
+    res.status(HttpStatusCode.OK).json(info)
+  } catch (error) {
+    res.status(HttpStatusCode.NOT_FOUND)
+    throw new Error('Giao dịch đã hết hạn hoặc không tìm thấy')
+  }
 })
 
 export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
-  //set id user to sender_batch_id
-  var sender_batch_id = Math.random().toString(36).substring(9)
-  console.log(req.body)
-  var create_payout_json = {
-    'sender_batch_header': {
-      'sender_batch_id': sender_batch_id,
-      'email_subject': 'Rút tiền từ LTS Bank'
-    },
-    'items': [
-      {
-        'recipient_type': 'EMAIL',
-        'amount': {
-          'value': req.body.money,
-          'currency': 'USD'
-        },
-        'receiver': req.body.email,
-        'note': 'Thank you.',
-        'sender_item_id': 'Rút tiền từ LTS Bank'
-      }
-    ]
+  const info = {
+    emailPayPal: req.withdrawInfo.emailPayPal,
+    amount: req.withdrawInfo.amount,
+    _id: req.withdrawInfo._id,
+    token: req.body.token
   }
-  paypal.payout.create(create_payout_json, SYNC_MODE, (error, withdrawInfo) => {
-    if (error) {
-      console.log(error)
-      throw error
-    } else {
-      let i = 3
-    }
-  })
+  try {
+    await UserService.withdrawMoneyProcess(info, res)
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw Error('Lỗi không thực hiện được giao dịch')
+  }
 })
 
 export const forgotPassword = asyncHandler(async function () {

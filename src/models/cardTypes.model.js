@@ -7,6 +7,11 @@ const IntCreditsSchema = mongoose.Schema({
     require: true,
     unique: true
   },
+  isIssuing: {
+    type: Boolean,
+    required: true,
+    default: true
+  },
   publisher: {
     type: String,
     require: true
@@ -31,6 +36,10 @@ const IntCreditsSchema = mongoose.Schema({
     type: Number,
     required: true
   },
+  condition: { //muc thu nhap de mo the, dieu kien mo the
+    type: String,
+    required: true
+  },
   statmentDay: { //ngay sao ke
     type: Number,
     required: true
@@ -47,23 +56,11 @@ const IntCreditsSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  reIssueFee: { //phi cap lai the
-    type: Number,
-    required: true
-  },
-  rePINFee: { //phi cap lai pin
-    type: Number,
-    required: true
-  },
   yearlyFee: {
     type: Number,
     required: true
   },
-  inDrawFee: { //phi rut ngan hang trong nuoc
-    type: Number,
-    required: true
-  },
-  outDrawFee: { //phi rut ngan hang ngoai nuoc
+  exCurrency: { //phi doi ngoai te (% tren thanh toan)
     type: Number,
     required: true
   }
@@ -76,6 +73,11 @@ const IntDebitsSchema = mongoose.Schema({
     type: String,
     require: true,
     unique: true
+  },
+  isIssuing: {
+    type: Boolean,
+    required: true,
+    default: true
   },
   publisher: {
     type: String,
@@ -101,27 +103,7 @@ const IntDebitsSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  maxDraw: { //so tien duoc rut toi da trong ngay
-    type: Number,
-    required: true
-  },
-  maxDrawTime: { //so lan rut toi da trong ngay
-    type: Number,
-    required: true
-  },
-  maxTransfer: {
-    type: Number,
-    required: true
-  },
   issueFee: {
-    type: Number,
-    required: true
-  },
-  reIssueFee: { //phi cap lai the
-    type: Number,
-    required: true
-  },
-  rePINFee: { //phi cap lai pin
     type: Number,
     required: true
   },
@@ -129,15 +111,7 @@ const IntDebitsSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  inDrawFee: { //phi rut ngan hang trong nuoc
-    type: Number,
-    required: true
-  },
-  outDrawFee: { //phi rut ngan hang ngoai nuoc (tinh % / giao dich)
-    type: Number,
-    required: true
-  },
-  transferFee: {
+  exCurrency: { //phi doi ngoai te (% tren thanh toan)
     type: Number,
     required: true
   }
@@ -150,6 +124,11 @@ const DomDebitsSchema = mongoose.Schema({
     type: String,
     require: true,
     unique: true
+  },
+  isIssuing: {
+    type: Boolean,
+    required: true,
+    default: true
   },
   publisher: {
     type: String,
@@ -171,43 +150,11 @@ const DomDebitsSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  maxDraw: {
-    type: Number,
-    required: true
-  },
-  maxDrawTime: {
-    type: Number,
-    required: true
-  },
-  maxTransfer: {
-    type: Number,
-    required: true
-  },
   issueFee: {
     type: Number,
     required: true
   },
-  reIssueFee: { //phi cap lai the
-    type: Number,
-    required: true
-  },
-  rePINFee: { //phi cap lai pin
-    type: Number,
-    required: true
-  },
   yearlyFee: {
-    type: Number,
-    required: true
-  },
-  inDrawFee: { //phi rut cung ngan hang
-    type: Number,
-    required: true
-  },
-  outDrawFee: { //phi rut khac ngan hang
-    type: Number,
-    required: true
-  },
-  transferFee: {
     type: Number,
     required: true
   }

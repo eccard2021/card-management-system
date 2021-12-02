@@ -1,18 +1,23 @@
 import jwt from 'jsonwebtoken'
 import asyncHandler from 'express-async-handler'
-import User from '@src/models/user.model'
+import User from '../models/user.model'
+import Token from '../models/token.model'
 import { HttpStatusCode } from '@src/utilities/constant'
 
 const protect = asyncHandler(async (req, res, next) => {
-  let token
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      token = req.headers.authorization.replace('Bearer ', '')
+      let token = req.headers.authorization.replace('Bearer ', '')
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
-      req.user = await User.findOne({ _id: decoded._id, 'tokens.token': token }).select('-password')
-      if (!req.user) {
+      req.token = await Token.findOne({ userId: decoded._id, token: token, tokenType: 'login' })
+      if (!req.token) {
         res.status(HttpStatusCode.UNAUTHORIZED)
         throw new Error('Unauthorized token')
+      }
+      req.user = await User.findById(req.token.userId).select('-password')
+      if (!req.user) {
+        res.status(HttpStatusCode.UNAUTHORIZED)
+        throw new Error('Tài khoản đã bị khoá')
       }
       next()
     } catch (error) {
@@ -20,6 +25,9 @@ const protect = asyncHandler(async (req, res, next) => {
       res.status(HttpStatusCode.UNAUTHORIZED)
       throw new Error('Unauthorized token')
     }
+  } else {
+    res.status(HttpStatusCode.UNAUTHORIZED)
+    throw new Error('Unauthorized token')
   }
 })
 

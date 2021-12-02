@@ -20,8 +20,9 @@ export const users = [
       salary: 32000
     },
     accNumber: '123456',
-    password: bcrypt.hashSync('123456', 10),
+    password: '123456',
     isAdmin: true,
+    isActive: true,
     balance: 100000000
   },
   {
@@ -42,301 +43,150 @@ export const users = [
       salary: 32000
     },
     accNumber: '654321',
-    password: bcrypt.hashSync('123456', 10),
+    password: '123456',
     isAdmin: false,
+    isActive: true,
     balance: 100000000
   }
 ]
 
 export const intCredits = [
   {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-1',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
+    cardUrl: 'the-lts-internaional-credit-visa-standard',
+    cardName: 'Thẻ LTS Internaional Credit VISA Standard',
+    isIssuing: true,
+    publisher: 'VISA',
     image: '/',
-    cardRank: 'platinum',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
+    cardRank: 'Standard',
+    description: 'Thẻ tín dụng VISA standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
+    creditLine: 20000000,
+    condition: 'Thu nhập/tháng từ 05 triệu VNĐ',
     statmentDay: 25,
     payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    interestRate: 0.023,
+    issueFee: 150000,
+    yearlyFee: 50000,
+    exCurrency: 0.01
   },
   {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-2',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
+    cardUrl: 'the-lts-internaional-credit-visa-gold',
+    cardName: 'Thẻ LTS Internaional Credit VISA Gold',
+    isIssuing: true,
+    publisher: 'VISA',
     image: '/',
-    cardRank: 'gold',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
+    cardRank: 'Gold',
+    description: 'Thẻ tín dụng VISA Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
+    creditLine: 150000000,
+    condition: 'Thu nhập/tháng từ 20 triệu VNĐ',
     statmentDay: 25,
     payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    interestRate: 0.023,
+    issueFee: 300000,
+    yearlyFee: 200000,
+    exCurrency: 0.01
   },
   {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-3',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
+    cardUrl: 'the-lts-internaional-credit-mastercard-standard',
+    cardName: 'Thẻ LTS Internaional Credit mastercard Standard',
+    isIssuing: true,
+    publisher: 'MasterCard',
     image: '/',
-    cardRank: 'silver',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
+    cardRank: 'Standard',
+    description: 'Thẻ tín dụng MasterCard Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
+    creditLine: 200000000,
+    condition: 'Thu nhập/tháng từ 40 triệu VNĐ',
     statmentDay: 25,
     payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    interestRate: 0.025,
+    issueFee: 300000,
+    yearlyFee: 250000,
+    exCurrency: 0.008
   },
   {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-4',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
+    cardUrl: 'the-lts-internaional-credit-mastercard-gold',
+    cardName: 'Thẻ LTS Internaional Credit mastercard Gold',
+    isIssuing: true,
+    publisher: 'MasterCard',
     image: '/',
-    cardRank: 'gold',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
+    cardRank: 'Gold',
+    description: 'Thẻ tín dụng MasterCard Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
+    creditLine: 50000000,
+    condition: 'Thu nhập/tháng từ 10 triệu VNĐ',
     statmentDay: 25,
     payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    interestRate: 0.024,
+    issueFee: 200000,
+    yearlyFee: 150000,
+    exCurrency: 0.008
   },
-  {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-5',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
-    image: '/',
-    cardRank: 'platinum',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
-    statmentDay: 25,
-    payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  },
-  {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-6',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
-    image: '/',
-    cardRank: 'gold',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
-    statmentDay: 25,
-    payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  },
-  {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-7',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
-    image: '/',
-    cardRank: 'silver',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
-    statmentDay: 25,
-    payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  },
-  {
-    cardUrl: 'the-tin-dung-vpbank-shopee-platinum-8',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
-    image: '/',
-    cardRank: 'gold',
-    description: 'Đơn hàng là từng đặt hàng ở mỗi đơn vị bán hàng. Trong 1 giao dịch thanh toán bằng thẻ có thể có nhiều đơn hàng. Ví dụ: GD qua thẻ Shopee Platinum  900k: gồm 1 đơn hàng mua hàng tại Shop A1: giá 400k; 1 đơn hàng mua hàng tại Shop A2: giá 200k; 1 đơn hàng mua hàng tại Shop A3: giá 300k. Như vậy đơn hàng tại Shop A1 và A3 sẽ được áp dụng mã miễn phí. Đơn hàng tại Shop A2 không được hưởng mã miễn ph',
-    creditLine: 3,
-    statmentDay: 25,
-    payWithin: 45,
-    interestRate: 10,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  }
+
 ]
 export const intDebits = [
   {
-    cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond-1',
-    cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
+    cardUrl: 'the-lts-internaional-Debit-mastercard-standard',
+    cardName: 'Thẻ LTS Internaional Debit mastercard Standard',
+    isIssuing: true,
+    publisher: 'MasterCard',
     image: '/',
-    cardRank: 'gold',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxPay: 3,
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    cardRank: 'Standard',
+    description: 'Thẻ ghi nợ quốc tế MasterCard Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
+    maxPay: 400000000,
+    issueFee: 0,
+    yearlyFee: 100000,
+    exCurrency: 0.008
   },
   {
-    cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond-2',
-    cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
+    cardUrl: 'the-lts-internaional-Debit-mastercard-gold',
+    cardName: 'Thẻ LTS Internaional Debit mastercard Gold',
+    isIssuing: true,
+    publisher: 'MasterCard',
     image: '/',
-    cardRank: 'silver',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxPay: 3,
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    cardRank: 'Gold',
+    description: 'Thẻ ghi nợ quốc tế MasterCard Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
+    maxPay: 800000000,
+    issueFee: 50000,
+    yearlyFee: 200000,
+    exCurrency: 0.008
   },
   {
-    cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond-3',
-    cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
+    cardUrl: 'the-lts-internaional-Debit-visa-standard',
+    cardName: 'Thẻ LTS Internaional Debit VISA Standard',
+    isIssuing: true,
+    publisher: 'VISA',
     image: '/',
-    cardRank: 'platinum',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxPay: 3,
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    cardRank: 'Standard',
+    description: 'Thẻ ghi nợ quốc tế VISA Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
+    maxPay: 500000000,
+    issueFee: 0,
+    yearlyFee: 80000,
+    exCurrency: 0.0075
   },
   {
-    cardUrl: 'the-ghi-no-quoc-te-vpbank-diamond-4',
-    cardName: 'Thẻ ghi nợ quốc tế VPBank Diamond',
+    cardUrl: 'the-lts-internaional-Debit-visa-gold',
+    cardName: 'Thẻ LTS Internaional Debit VISA Gold',
+    isIssuing: true,
+    publisher: 'VISA',
     image: '/',
-    cardRank: 'gold',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxPay: 3,
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    cardRank: 'Gold',
+    description: 'Thẻ ghi nợ quốc tế VISA Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
+    maxPay: 700000000,
+    issueFee: 0,
+    yearlyFee: 100000,
+    exCurrency: 0.0075
   }
 ]
 
 export const domDebits = [
   {
-    cardUrl: 'the-ghi-no-noi-dia-autolink-1',
-    cardName: 'Thẻ ghi nợ nội địa AutoLink',
+    cardUrl: 'the-lts-domestic-Debit-Napas-standard',
+    cardName: 'Thẻ LTS Domestic Debit Napas Standard',
+    isIssuing: true,
+    publisher: 'Napas',
     image: '/',
-    cardRank: 'gold',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  },
-  {
-    cardUrl: 'the-ghi-no-noi-dia-autolink-2',
-    cardName: 'Thẻ tín dụng VPBank Shopee Platinum',
-    image: '/',
-    cardRank: 'silver',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  },
-  {
-    cardUrl: 'the-ghi-no-noi-dia-autolink-3',
-    cardName: 'Thẻ ghi nợ nội địa AutoLink',
-    image: '/',
-    cardRank: 'platinum',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
-  },
-  {
-    cardUrl: 'the-ghi-no-noi-dia-autolink-4',
-    cardName: 'Thẻ ghi nợ nội địa AutoLink',
-    image: '/',
-    cardRank: 'gold',
-    description:
-      'Được phát hành theo tiêu chuẩn EMV với độ bảo mật rất cao, con chip được thiết kế ở mặt trước của thẻ để lưu giữ thông tin khách hàng',
-    maxDraw: 500000000,
-    maxDrawTime: 45,
-    maxTransfer: 2,
-    transferFee: 0.2,
-    issueFee: 0.5,
-    reIssueFee: 1,
-    rePINFee: 0.5,
-    yearlyFee: 0.25,
-    inDrawFee: 0.05,
-    outDrawFee: 0.1
+    cardRank: 'Standard',
+    description: 'Thẻ ghi nợ nội địa Napas Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trong nội địa Quốc Gia',
+    issueFee: 0,
+    yearlyFee: 45000
   }
 ]
 
@@ -345,30 +195,245 @@ export const services = [
     service_name: 'NAP TIEN PAYPAL',
     fixedfee: 0.6,
     fee_rate: 0.035,
+    coefficient: 1,
     action: SERVICE_ACTION_TYPE.CHARGE
   },
   {
     service_name: 'RUT TIEN PAYPAL',
     fixedfee: 0,
     fee_rate: 0,
+    coefficient: -1,
     action: SERVICE_ACTION_TYPE.WITHDRAW
   },
   {
     service_name: 'CHUYEN TIEN TRONG NGAN HANG',
     fixedfee: 0,
     fee_rate: 0.003,
+    coefficient: -1,
     action: SERVICE_ACTION_TYPE.TRANSFER
   },
   {
     service_name: 'THANH TOAN ONLINE',
     fixedfee: 0,
     fee_rate: 0.035,
+    coefficient: -1,
     action: SERVICE_ACTION_TYPE.PAYMENT
   },
   {
     service_name: 'PHI DUY TRI TAI KHOAN',
     fixedfee: 0.49,
     fee_rate: 0.0349,
+    coefficient: -1,
     action: SERVICE_ACTION_TYPE.MONTHLY_FEE
+  }
+]
+
+export const cardList = [
+  /////////////////////////////INT Credit/////////////////////////////////////
+  //////////VISA
+  {
+    cardNumber: '4000 0200 0000 0000',
+    publisher: 'VISA',
+    CVV: '828',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588c',
+    cardType: 'IntCredits'
+  },
+  {
+    cardNumber: '4484 6000 0000 0004',
+    publisher: 'VISA',
+    CVV: '737',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588c',
+    cardType: 'IntCredits'
+  },
+  {
+    cardNumber: '4000 6400 0000 0005',
+    publisher: 'VISA',
+    CVV: '697',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588d',
+    cardType: 'IntCredits'
+  },
+  {
+    cardNumber: '4003 5500 0000 0003',
+    publisher: 'VISA',
+    CVV: '831',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588d',
+    cardType: 'IntCredits'
+  },
+  /////////MASTERCARD
+  {
+    cardNumber: '2223 0000 4841 0010',
+    publisher: 'MasterCard',
+    CVV: '182',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588e',
+    cardType: 'IntCredits'
+  },
+  {
+    cardNumber: '2222 4000 1000 0008',
+    publisher: 'MasterCard',
+    CVV: '141',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588e',
+    cardType: 'IntCredits'
+  },
+  {
+    cardNumber: '5100 0600 0000 0002',
+    publisher: 'MasterCard',
+    CVV: '697',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588f',
+    cardType: 'IntCredits'
+  },
+  {
+    cardNumber: '2222 4000 3000 0004',
+    publisher: 'MasterCard',
+    CVV: '831',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d588f',
+    cardType: 'IntCredits'
+  },
+  /////////////////////////INT Debit/////////////////////////////
+  //////////////////VISA
+  {
+    cardNumber: '4000 1600 0000 0004',
+    publisher: 'VISA',
+    CVV: '828',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5893',
+    cardType: 'IntDebits'
+  },
+  {
+    cardNumber: '4607 0000 0000 0009',
+    publisher: 'VISA',
+    CVV: '737',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5893',
+    cardType: 'IntDebits'
+  },
+  {
+    cardNumber: '4000 7600 0000 0001',
+    publisher: 'VISA',
+    CVV: '697',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5894',
+    cardType: 'IntDebits'
+  },
+  {
+    cardNumber: '4017 3400 0000 0003',
+    publisher: 'VISA',
+    CVV: '831',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5894',
+    cardType: 'IntDebits'
+  },
+  /////////MASTERCARD
+  {
+    cardNumber: '2222 4000 6000 0007',
+    publisher: 'MasterCard',
+    CVV: '182',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5891',
+    cardType: 'IntDebits'
+  },
+  {
+    cardNumber: '2223 5204 4356 0010',
+    publisher: 'MasterCard',
+    CVV: '141',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5891',
+    cardType: 'IntDebits'
+  },
+  {
+    cardNumber: '2222 4000 7000 0005',
+    publisher: 'MasterCard',
+    CVV: '697',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5892',
+    cardType: 'IntDebits'
+  },
+  {
+    cardNumber: '5555 3412 4444 1115',
+    publisher: 'MasterCard',
+    CVV: '831',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5892',
+    cardType: 'IntDebits'
+  },
+
+  /////////////////////////dom Debit/////////////////////////////
+  //////////////////NAPAS
+  {
+    cardNumber: '9704 2500 1234 5601',
+    publisher: 'NAPAS',
+    CVV: '828',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5896',
+    cardType: 'DomDebits'
+  },
+  {
+    cardNumber: '9704 2500 6543 2110',
+    publisher: 'NAPAS',
+    CVV: '828',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: '61a88590e5630c69fe5d5896',
+    cardType: 'DomDebits'
   }
 ]

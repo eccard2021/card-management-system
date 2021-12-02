@@ -2,9 +2,10 @@ import express from 'express'
 import {
   authUser, getUserProfile, registerUser,
   updateUserPassword, logOutUser, logOutAll, chargeUser, chargeSubmitUser,
-  withdrawMoneyUser, withdrawMoneySubmitUser, forgotPassword
+  withdrawMoneyUser, withdrawMoneySubmitUser, forgotPassword, getWithdrawMoneyInfoUser
 } from '../../controllers/user.controller'
 import { protect } from '../../middlewares/auth.middleware'
+import { authWithdrawMoney } from '../../middlewares/authWithdraw.middleware'
 import { validateRegisterUser, validateLoginUser, validateModifyPasswordUser } from '../../validators/user.validator'
 
 const router = express.Router()
@@ -16,7 +17,8 @@ router.route('/logout').post(protect, logOutUser)
 router.route('/logoutall').post(protect, logOutAll)
 router.route('/charge').post(protect, chargeUser)
 router.route('/charge/submit').post(protect, chargeSubmitUser)
-router.route('/withdraw-money').post(withdrawMoneyUser)
-router.route('/withdraw-money/submit').post(withdrawMoneySubmitUser)
+router.route('/withdraw-money').post(protect, withdrawMoneyUser)
+router.route('/withdraw-money/verify').post(protect, authWithdrawMoney, getWithdrawMoneyInfoUser)
+router.route('/withdraw-money/submit').post(protect, authWithdrawMoney, withdrawMoneySubmitUser)
 router.route('/forgot-password').post(forgotPassword)
 export const userRoutes = router

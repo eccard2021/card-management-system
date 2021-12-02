@@ -2,6 +2,7 @@ import TransactionLog from '../models/transactionModel'
 import User from '../models/user.model'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../utilities/constant'
+import CardList from '../models/cardList.model'
 
 export const getTransactionLogs = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 0
@@ -14,7 +15,7 @@ export const getTransactionLogs = asyncHandler(async (req, res) => {
       populate: { path: 'transType' }
     })
     .select('balanceFluctuations.$')*/
-  const u = await User.aggregate([
+  /*const u = await User.aggregate([
     { $match: { _id: req.user._id } },
     { $unwind: '$balanceFluctuations' },
     {
@@ -31,16 +32,9 @@ export const getTransactionLogs = asyncHandler(async (req, res) => {
         foreignField: '_id',
         as: 'transactionLog'
       }
-    }/*,
-    {
-      $lookup: {
-        from: 'services',
-        localField: 'transactionLog.transType',
-        foreignField: '_id',
-        as: 'transType'
-      }
-    }*/
-  ])
+    }
+  ])*/
+  const u = await CardList.find().populate('cardTypeId')
   console.log(u)
   res.json(u)
 })

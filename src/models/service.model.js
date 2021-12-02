@@ -16,6 +16,13 @@ const ServiceSchema = mongoose.Schema({
     min: 0,
     max: 1
   },
+  coefficient: {
+    type: Number,
+    require: true,
+    min: -1,
+    max: 1,
+    default: 1
+  },
   action: {
     type: String,
     require: true,
@@ -24,7 +31,7 @@ const ServiceSchema = mongoose.Schema({
 })
 
 ServiceSchema.methods.calculateServiceFee = async function (transactionLog) {
-  transactionLog.transactionFee = this.fixedfee + transactionLog.transactionAmount * this.fee_rate
+  transactionLog.transactionFee = this.fixedfee + Math.abs(transactionLog.transactionAmount) * this.fee_rate
 }
 
 const Service = mongoose.model('Services', ServiceSchema)
