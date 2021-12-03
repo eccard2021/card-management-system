@@ -142,7 +142,7 @@ UserSchema.methods.logOutAll = async function () {
 
 UserSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email })
-  if (!user || await user.matchPassword(password)) {
+  if (!user || !(await user.matchPassword(password))) {
     throw new Error('Email hoặc password không hợp lệ')
   }
   return user
