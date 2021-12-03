@@ -2,8 +2,6 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import Jwt from 'jsonwebtoken'
 import env from '../config/environment'
-import TransactionLog from './transactionModel'
-import Service from './service.model'
 import Token from './token.model'
 
 const UserSchema = mongoose.Schema({
@@ -99,20 +97,20 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password)
 }
 
-UserSchema.methods.updateBalance = async function (serviceName, transactionLog) {
+UserSchema.methods.updateBalance = async function (transactionLog, service) {
   const user = this
   try {
-    const service = await Service.findOne({ service_name: serviceName }).exec()
-    transactionLog.transType = service._id
-    await service.calculateServiceFee(transactionLog)
-    const log = await TransactionLog.create(transactionLog)
-    log.save()
-    user.balance = (user.balance + service.coefficient * transactionLog.transactionAmount - transactionLog.transactionFee).toFixed(2)
+    let tmp = ''
+    if (transactionLog.toCurrency.currency_code === 'VND')
+      tmp = 'toCurrency'
+    else
+      tmp = 'fromCurrency'
+    user.balance = (user.balance + service.coefficient * transactionLog[tmp].transactionAmount - transactionLog[tmp].transactionFee).toFixed(2)
     user.balanceFluctuations.push({
-      transactionLog: log._id,
-      amount: log.transactionAmount,
+      transactionLog: transactionLog._id,
+      amount: transactionLog.transactionAmount,
       endingBalance: this.balance,
-      description: log.description
+      description: transactionLog.description
     })
     await user.save()
   }

@@ -42,12 +42,39 @@ const TransactionLogSchema = mongoose.Schema({
       ref: 'users'
     }
   },
-  transactionAmount: {
-    type: Number,
-    required: true,
-    min: 0
+  fromCurrency: {
+    transactionAmount: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    transactionFee: {
+      type: Number,
+      require: true,
+      min: 0
+    },
+    currency_code: {
+      type: String,
+      require: true
+    }
   },
-  transactionFee: {
+  toCurrency: {
+    transactionAmount: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    transactionFee: {
+      type: Number,
+      require: true,
+      min: 0
+    },
+    currency_code: {
+      type: String,
+      require: true
+    }
+  },
+  exchangeRate: {
     type: Number,
     require: true,
     min: 0

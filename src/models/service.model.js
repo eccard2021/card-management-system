@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { convertCurrency } from '../utilities/currency'
 
 const ServiceSchema = mongoose.Schema({
   service_name: {
@@ -31,7 +32,22 @@ const ServiceSchema = mongoose.Schema({
 })
 
 ServiceSchema.methods.calculateServiceFee = async function (transactionLog) {
-  transactionLog.transactionFee = this.fixedfee + Math.abs(transactionLog.transactionAmount) * this.fee_rate
+  //transactionLog.transactionFee = this.fixedfee + Math.abs(transactionLog.transactionAmount) * this.fee_rate
+  if (transactionLog.toCurrency.currency_code === 'VND') {
+    transactionLog.toCurrency.transactionFee = (this.fixedfee + Math.abs(transactionLog.toCurrency.transactionAmount) * this.fee_rate).toFixed(2)
+    transactionLog.fromCurrency.transactionFee = await convertCurrency(
+      transactionLog.toCurrency.currency_code,
+      transactionLog.fromCurrency.currency_code,
+      transactionLog.toCurrency.transactionFee
+    )
+  } else {
+    transactionLog.fromCurrency.transactionFee = (this.fixedfee + Math.abs(transactionLog.fromCurrency.transactionAmount) * this.fee_rate).toFixed(2)
+    transactionLog.toCurrency.transactionFee = await convertCurrency(
+      transactionLog.fromCurrency.currency_code,
+      transactionLog.toCurrency.currency_code,
+      transactionLog.fromCurrency.transactionFee
+    )
+  }
 }
 
 const Service = mongoose.model('Services', ServiceSchema)

@@ -103,7 +103,7 @@ export const chargeUser = asyncHandler(async (req, res) => {
 
   //sb-q2eib8526496@personal.example.com
   //wx<q-W8S
-  const { amount } = req.body.amount
+  const amount = req.body.amount
   try {
     await UserService.chargeMoneyInit(amount, res)
   } catch (error) {
@@ -116,12 +116,10 @@ export const chargeSubmitUser = asyncHandler(async (req, res) => {
   const info = {
     payerId: req.body.PayerID,
     paymentId: req.body.paymentId,
-    accNumber: req.user.accNumber,
-    name: req.user.name,
     userId: req.user._id
   }
   try {
-    await UserService.chargeMoneyProcess()
+    await UserService.chargeMoneyProcess(info, res)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Không thể thực hiện giao dịch')
@@ -134,8 +132,12 @@ export const withdrawMoneyUser = asyncHandler(async (req, res) => {
     amount: req.body.amount
   }
   try {
-    await UserService.sendMailWithdraw(req.user, withdrawInfo)
-    res.status(HttpStatusCode.OK).json({ message: 'Đã gửi email xác nhận rút tiền đến tài khoản của bạn, vui lòng kiểm tra email' })
+    if (await UserService.WithdrawMoneyInit(req.user, withdrawInfo))
+      res.status(HttpStatusCode.OK).json({ message: 'Đã gửi email xác nhận rút tiền đến tài khoản của bạn, vui lòng kiểm tra email' })
+    else {
+      res.status(HttpStatusCode.BAD_REQUEST)
+      throw new Error('Số dư của bạn không đủ để rút tiền')
+    }
   } catch (error) {
     console.log(error)
     res.status(HttpStatusCode.INTERNAL_SERVER)
@@ -160,11 +162,11 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
     _id: req.withdrawInfo._id,
     token: req.body.token
   }
-  try {
-    await UserService.withdrawMoneyProcess(info, res)
-  } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER)
-    throw Error('Lỗi không thực hiện được giao dịch')
+  if (await UserService.withdrawMoneyProcess(info, res))
+    res.status(HttpStatusCode.OK).json({ message: 'Rút tiền thành công về ví PayPal' })
+  else {
+    res.status(HttpStatusCode.BAD_REQUEST)
+    throw new Error('Số dư của bạn không đủ để rút tiền')
   }
 })
 

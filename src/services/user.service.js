@@ -8,6 +8,11 @@ import jwt from 'jsonwebtoken'
 import Token from '../models/token.model'
 import paypal from 'paypal-rest-sdk'
 import mongoose from 'mongoose'
+import Service from '../models/service.model'
+import * as TransactionLogService from './transactionLog.service'
+import TransactionLog from '../models/transactionModel'
+import { convertCurrency, getRate } from '../utilities/currency'
+import { delay } from '../utilities'
 
 const SYNC_MODE = 'false'
 
@@ -155,34 +160,26 @@ export const chargeMoneyProcess = asyncHandler(async function (info, res) {
         throw error
       }
       try {
-        let transactionLog = {
-          from: {
-            bank: 'PayPal',
-            number: chargeSuccess.payer.payer_info.email,
-            remitterName: `${chargeSuccess.payer.payer_info.first_name} ${chargeSuccess.payer.payer_info.last_name}`
-          },
-          to: {
-            bank: 'LTSBANK',
-            number: info.accNumber,
-            receiverName: info.name,
-            UID: new mongoose.Types.ObjectId(info.userId)
-          },
-          transactionAmount: Number(chargeSuccess.transactions[0].amount.total),
-          description: chargeSuccess.transactions[0].description
-        }
+        const service = await Service.findOne({ service_name: 'NAP TIEN PAYPAL' }).exec()
         let user = await User.findById(info.userId)
-        await user.updateBalance('NAP TIEN PAYPAL', transactionLog, 1)
+        let transactionLog = await TransactionLog.create(await TransactionLogService.createLogChargePayPal(user, chargeSuccess, service))
+        transactionLog.save()
+        await user.updateBalance(transactionLog, service)
         res.status(HttpStatusCode.OK).json({ message: 'Nạp tiền từ Paypal thành công' })
       } catch (error) {
         //can refund????
         console.log(error)
+        throw error
       }
     })
   }))
 })
 
-export const sendMailWithdraw = asyncHandler(async function (reqUser, withdrawInfo) {
+export const WithdrawMoneyInit = async function (reqUser, withdrawInfo) {
   let user = await User.findOne({ _id: reqUser._id })
+  let checkBalance = await checkBalanceBeforeTransaction(user, 'RUT TIEN PAYPAL', Number(withdrawInfo.amount), 'USD')
+  if (!checkBalance)
+    return false
   let token = jwt.sign(
     { _id: user._id, emailPayPal: withdrawInfo.emailPayPal, amount: withdrawInfo.amount, currency: 'USD' },
     env.JWT_SECRET,
@@ -197,7 +194,8 @@ export const sendMailWithdraw = asyncHandler(async function (reqUser, withdrawIn
   await tokenSave.save()
   const mailContext = `<p><a href="http://${env.APP_HOST}:${env.APP_PORT}/v1/user/withdraw-money/verify?uid=${user._id}&token=${token}">link</a></p>`
   sendMail(user.email, 'LTSBANK: Xác nhận rút tiền', mailContext)
-})
+  return true
+}
 
 export const withdrawMoneyProcess = asyncHandler(async function (info, res) {
   //set id user to sender_batch_id
@@ -221,29 +219,27 @@ export const withdrawMoneyProcess = asyncHandler(async function (info, res) {
     ]
   }
   let user = await User.findById(info._id)
-  paypal.payout.create(create_payout_json, SYNC_MODE, async (error, withdrawInfo) => {
+  let checkBalance = await checkBalanceBeforeTransaction(user, 'RUT TIEN PAYPAL', Number(info.amount), 'USD')
+  if (!checkBalance)
+    return false
+  await paypal.payout.create(create_payout_json, SYNC_MODE, async (error, withdrawInfo) => {
     if (error) {
       console.log(error)
       throw error
     } else {
-      let transactionLog = {
-        from: {
-          bank: 'LTSBANK',
-          number: user.accNumber,
-          remitterName: user.name,
-          UID: new mongoose.Types.ObjectId(user._id)
-        },
-        to: {
-          bank: 'PayPal',
-          number: info.emailPayPal,
-          receiverName: info.emailPayPal
-        },
-        transactionAmount: Number(info.amount),
-        description: 'Rút tiền ra ví PayPal'
-      }
-      await user.updateBalance('RUT TIEN PAYPAL', transactionLog)
+      const service = await Service.findOne({ service_name: 'RUT TIEN PAYPAL' }).exec()
+      let transactionLog = await TransactionLog.create(await TransactionLogService.createLogWithdrawPayPal(user, info, service))
+      await user.updateBalance(transactionLog, service)
       await Token.deleteOne({ userId: info._id, token: info.token, tokenType: 'withdraw' })
-      res.json({ message: 'Rút tiền thành công!' })
     }
   })
+  return true
 })
+
+export const checkBalanceBeforeTransaction = async function (user, serviceName, amount, fromCurrency) {
+  const service = await Service.findOne({ service_name: serviceName }).exec()
+  let amountVND = await convertCurrency(fromCurrency, 'VND', amount)
+  if (amountVND > service.fixedfee + user.balance)
+    return false
+  return true
+}
