@@ -64,7 +64,7 @@ const updateUserPassword = asyncHandler(async (req, res) => {
   const userId = req.user._id
   const passwordChange = {
     currentPassword: req.body.currentPassword,
-    newPassword: req.newPassword
+    newPassword: req.body.newPassword
   }
   const result = await UserService.updateUserPassword(userId, passwordChange)
   res.status(result.status).json({ message: result.message })
