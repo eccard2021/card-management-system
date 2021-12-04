@@ -141,18 +141,12 @@ export const withdrawMoneyUser = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(HttpStatusCode.INTERNAL_SERVER)
-    throw Error('Không thể gửi mail')
+    throw Error('Không thể gửi email')
   }
 })
 
 export const getWithdrawMoneyInfoUser = asyncHandler(async function (req, res) {
-  try {
-    let info = req.withdrawInfo
-    res.status(HttpStatusCode.OK).json(info)
-  } catch (error) {
-    res.status(HttpStatusCode.NOT_FOUND)
-    throw new Error('Giao dịch đã hết hạn hoặc không tìm thấy')
-  }
+  res.status(HttpStatusCode.OK).json(req.withdrawInfo)
 })
 
 export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
@@ -172,6 +166,38 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
 
 export const forgotPassword = asyncHandler(async function () {
 
+})
+
+export const transferMoneyUser = asyncHandler(async function (req, res) {
+  const info = {
+    receiverAccNumber: req.body.accNumber,
+    amount: Number(req.body.amount),
+    remitterId: req.user._id
+  }
+  try {
+    let result = await UserService.transferMoneyInit(info)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Không thể gửi email')
+  }
+
+})
+
+export const getTransferMoneyInfoUser = asyncHandler(async function (req, res) {
+  res.status(HttpStatusCode.OK).json(req.transferInfo)
+})
+
+export const transferMoneySubmitUser = asyncHandler(async function (req, res) {
+  const info = {
+    receiverAccNumber: req.transferInfo.receiverAccNumber,
+    amount: Number(req.transferInfo.amount),
+    remitterId: req.transferInfo._id,
+    token: req.body.token
+  }
+  let result = await UserService.transferMoneyProcess(info)
+  res.status(result.status).json({ message: result.message })
 })
 
 export { authUser, getUserProfile, registerUser, updateUserPassword }

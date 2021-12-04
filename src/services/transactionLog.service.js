@@ -68,3 +68,38 @@ export const createLogWithdrawPayPal = async function (userInfo, successInfo, se
   await service.calculateServiceFee(transactionLog)
   return transactionLog
 }
+
+export const createLogTransfer = async function (remitter, receiver, transferinfor, service) {
+  let transactionLog = {
+    from: {
+      bank: 'LTSBANK',
+      number: remitter.accNumber,
+      remitterName: remitter.name,
+      UID: new mongoose.Types.ObjectId(remitter._id)
+    },
+    to: {
+      bank: 'LTSBANK',
+      number: receiver.accNumber,
+      remitterName: receiver.name,
+      UID: new mongoose.Types.ObjectId(receiver._id)
+    },
+    fromCurrency: {
+      transactionAmount: 0,
+      currency_code: 'VND'
+    },
+    toCurrency: {
+      transactionAmount: Number(transferinfor.amount),
+      currency_code: 'VND'
+    },
+    exchangeRate: await getRate('VND', 'VND'),
+    description: 'Chuyển khoản trong LTS Bank'
+  }
+  transactionLog.transType = service._id
+  transactionLog.fromCurrency.transactionAmount = await convertCurrency(
+    transactionLog.toCurrency.currency_code,
+    transactionLog.fromCurrency.currency_code,
+    transactionLog.toCurrency.transactionAmount
+  )
+  await service.calculateServiceFee(transactionLog)
+  return transactionLog
+}

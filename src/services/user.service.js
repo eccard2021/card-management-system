@@ -7,12 +7,11 @@ import env from '../config/environment'
 import jwt from 'jsonwebtoken'
 import Token from '../models/token.model'
 import paypal from 'paypal-rest-sdk'
-import mongoose from 'mongoose'
+import { startSession } from 'mongoose'
 import Service from '../models/service.model'
 import * as TransactionLogService from './transactionLog.service'
 import TransactionLog from '../models/transactionModel'
-import { convertCurrency, getRate } from '../utilities/currency'
-import { delay } from '../utilities'
+import { convertCurrency } from '../utilities/currency'
 
 const SYNC_MODE = 'false'
 
@@ -229,6 +228,7 @@ export const withdrawMoneyProcess = asyncHandler(async function (info, res) {
     } else {
       const service = await Service.findOne({ service_name: 'RUT TIEN PAYPAL' }).exec()
       let transactionLog = await TransactionLog.create(await TransactionLogService.createLogWithdrawPayPal(user, info, service))
+      await transactionLog.save()
       await user.updateBalance(transactionLog, service)
       await Token.deleteOne({ userId: info._id, token: info.token, tokenType: 'withdraw' })
     }
@@ -236,10 +236,76 @@ export const withdrawMoneyProcess = asyncHandler(async function (info, res) {
   return true
 })
 
+export const transferMoneyInit = asyncHandler(async function (transferInfo) {
+  let remitter = await User.findById(transferInfo.remitterId)
+  let receiver = await User.findOne({ accNumber: transferInfo.receiverAccNumber })
+  if (!receiver)
+    return { status: HttpStatusCode.BAD_REQUEST, message: 'Số tài khoản người nhận không tồn tại. Vui lòng kiểm tra lại.' }
+  let checkBalance = await checkBalanceBeforeTransaction(remitter, 'CHUYEN TIEN TRONG NGAN HANG', transferInfo.amount, 'VND')
+  if (!checkBalance)
+    return { status: HttpStatusCode.BAD_REQUEST, message: 'Số dư không đủ để thực hiện giao dịch.' }
+  let token = jwt.sign(
+    { _id: remitter._id, receiverAccNumber: receiver.accNumber, amount: transferInfo.amount, currency: 'VND' },
+    env.JWT_SECRET,
+    {
+      expiresIn: '15m'
+    })
+  let tokenSave = await Token.create({
+    userId: remitter._id,
+    tokenType: 'transfer',
+    token: token
+  })
+  await tokenSave.save()
+  //const mailContext = `<p><a href="http://${env.APP_HOST}:${env.APP_PORT}/v1/user/withdraw-money/verify?uid=${remitter._id}&token=${token}">link</a></p>`
+  sendMail(remitter.email, 'LTSBANK: Xác nhận chuyển tiền', token)
+  return { status: HttpStatusCode.OK, message: 'Đã gửi email xác nhận chuyển tiền, vui lòng kiểm tra email của bạn.' }
+})
+
+export const transferMoneyProcess = asyncHandler(async function (transferInfo) {
+  const session = await startSession()
+  await session.startTransaction()
+  try {
+    const opts = { session, returnOriginal: false }
+    let remitter = await User.findOne({ _id: transferInfo.remitterId })
+    let receiver = await User.findOne({ accNumber: transferInfo.receiverAccNumber })
+    let checkBalance = await checkBalanceBeforeTransaction(remitter, 'CHUYEN TIEN TRONG NGAN HANG', transferInfo.amount, 'VND')
+    if (!checkBalance) {
+      await session.abortTransaction()
+      session.endSession()
+      return { status: HttpStatusCode.BAD_REQUEST, message: 'Số dư không đủ để thực hiện giao dịch.' }
+    }
+    const service = await Service.findOne({ service_name: 'CHUYEN TIEN TRONG NGAN HANG' }).exec()
+    let transactionLog = await TransactionLog.create(await TransactionLogService.createLogTransfer(remitter, receiver, transferInfo, service))
+    await remitter.updateBalance(transactionLog, service, opts)
+    await receiver.receiveMoney(transactionLog, opts)
+    console.log(transferInfo)
+    await Token.deleteOne({ userId: transferInfo.remitterId, token: transferInfo.token, tokenType: 'transfer' }, opts)
+    await session.commitTransaction()
+    session.endSession()
+  } catch (error) {
+    await session.abortTransaction()
+    console.log(error)
+    return { status: HttpStatusCode.INTERNAL_SERVER, message: 'Đã có lỗi xảy ra trong khi giao dịch.' }
+  }
+  return { status: HttpStatusCode.OK, message: 'Chuyển tiền thành công.' }
+})
+
 export const checkBalanceBeforeTransaction = async function (user, serviceName, amount, fromCurrency) {
   const service = await Service.findOne({ service_name: serviceName }).exec()
-  let amountVND = await convertCurrency(fromCurrency, 'VND', amount)
-  if (amountVND > service.fixedfee + user.balance)
+  let fee = {
+    fromCurrency: {
+      transactionAmount: amount,
+      currency_code: fromCurrency
+    },
+    toCurrency: {
+      transactionAmount: await convertCurrency(fromCurrency, 'VND', amount),
+      currency_code: 'VND'
+    }
+  }
+  await service.calculateServiceFee(fee)
+  console.log(fee)
+  if (fee.toCurrency.transactionAmount > fee.toCurrency.transactionFee + user.balance) {
     return false
+  }
   return true
 }

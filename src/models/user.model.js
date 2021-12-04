@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import Jwt from 'jsonwebtoken'
 import env from '../config/environment'
 import Token from './token.model'
+import { roundNumber } from '../utilities/currency'
 
 const UserSchema = mongoose.Schema({
   //noi dung KH nhap
@@ -30,7 +31,8 @@ const UserSchema = mongoose.Schema({
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   homeAddress: {
     type: String,
@@ -44,7 +46,8 @@ const UserSchema = mongoose.Schema({
   // tu phan nay tro di la he thong tu sinh ra, roi gui ve KH qua email
   accNumber: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   password: {
     type: String,
@@ -63,7 +66,8 @@ const UserSchema = mongoose.Schema({
   balance: {
     type: Number,
     required: true,
-    default: 0
+    default: 0,
+    min: 0
   },
   balanceFluctuations: [{
     transactionLog: {
@@ -97,7 +101,7 @@ UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password)
 }
 
-UserSchema.methods.updateBalance = async function (transactionLog, service) {
+UserSchema.methods.updateBalance = async function (transactionLog, service, opts) {
   const user = this
   try {
     let tmp = ''
@@ -105,17 +109,36 @@ UserSchema.methods.updateBalance = async function (transactionLog, service) {
       tmp = 'toCurrency'
     else
       tmp = 'fromCurrency'
-    user.balance = (user.balance + service.coefficient * transactionLog[tmp].transactionAmount - transactionLog[tmp].transactionFee).toFixed(2)
+    user.balance = roundNumber(user.balance + service.coefficient * transactionLog[tmp].transactionAmount - transactionLog[tmp].transactionFee, 2)
     user.balanceFluctuations.push({
       transactionLog: transactionLog._id,
-      amount: transactionLog.transactionAmount,
+      amount: transactionLog[tmp].transactionAmount,
       endingBalance: this.balance,
       description: transactionLog.description
     })
-    await user.save()
+    await user.save(opts)
   }
   catch (error) {
     console.log(error)
+    throw error
+  }
+}
+
+UserSchema.methods.receiveMoney = async function (transactionLog, opts) {
+  const user = this
+  try {
+    user.balance = roundNumber(user.balance + transactionLog.toCurrency.transactionAmount, 2)
+    user.balanceFluctuations.push({
+      transactionLog: transactionLog._id,
+      amount: transactionLog.toCurrency.transactionAmount,
+      endingBalance: this.balance,
+      description: transactionLog.description
+    })
+    await user.save(opts)
+  }
+  catch (error) {
+    console.log(error)
+    throw error
   }
 }
 

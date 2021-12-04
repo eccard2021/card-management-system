@@ -22,5 +22,11 @@ export const convertCurrency = async (from, to, value) => {
   let toRate = currency.rates[to]
   if (!fromRate || !toRate)
     throw new Error('Not found from coin or to coin')
-  return ((toRate / fromRate) * value).toFixed(2)
+  const t = Number((toRate / fromRate) * value)
+  return Math.round(t * 100) / 100
+}
+
+export const roundNumber = (value, decimal) => {
+  let t = Math.pow(10, decimal)
+  return Math.round(value * t) / t
 }
