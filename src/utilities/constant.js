@@ -1,4 +1,4 @@
-import env from '@src/config/environment'
+import env from '../config/environment'
 export const HttpStatusCode = {
   OK: 200,
   CREATED: 201,
@@ -20,7 +20,7 @@ export const SERVICE_ACTION_TYPE = {
 }
 
 
-let whitelist = [`http://${env.HOST}:3000`, 'http://127.0.0.1:5500']
+let whitelist = [`http://${env.HOST}:3000`, env.FRONTEND_HOSTNAME]
 export const corsOptions = {
   origin: function (origin, callback) {
     callback(null, true)
