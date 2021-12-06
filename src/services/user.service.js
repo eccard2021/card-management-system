@@ -131,8 +131,8 @@ export const chargeMoneyInit = asyncHandler(async function (amount, res) {
       'payment_method': 'paypal'
     },
     'redirect_urls': {
-      'return_url': `http://${env.FRONTEND_HOSTNAME}/user/charge/submit`,
-      'cancel_url': `http://${env.FRONTEND_HOSTNAME}/user/charge/submit/fail`
+      'return_url': `${env.FRONTEND_HOSTNAME}/user/charge/submit`,
+      'cancel_url': `${env.FRONTEND_HOSTNAME}/user/charge/submit/fail`
     },
     'transactions': [{
       'item_list': {
@@ -219,7 +219,7 @@ export const WithdrawMoneyInit = async function (reqUser, withdrawInfo) {
     token: token
   })
   await tokenSave.save()
-  const mailContext = `<p><a href="http://${env.FRONTEND_HOSTNAME}/v1/user/withdraw-money/verify?uid=${user._id}&token=${token}">Click vào đây để rút tiền</a></p>`
+  const mailContext = `<p><a href="${env.FRONTEND_HOSTNAME}/user/withdraw-money/verify?uid=${user._id}&token=${token}">Click vào đây để rút tiền</a></p>`
   sendMail(user.email, 'LTSBANK: Xác nhận rút tiền', mailContext)
   return true
 }
@@ -284,7 +284,7 @@ export const transferMoneyInit = asyncHandler(async function (transferInfo) {
     token: token
   })
   await tokenSave.save()
-  const mailContext = `<p><a href="http://${env.FRONTEND_HOSTNAME}/v1/user/withdraw-money/verify?uid=${remitter._id}&token=${token}">Click vào đây để chuyển tiền</a></p>`
+  const mailContext = `<p><a href="${env.FRONTEND_HOSTNAME}/user/transfer/verify?uid=${remitter._id}&token=${token}">Click vào đây để chuyển tiền</a></p>`
   sendMail(remitter.email, 'LTSBANK: Xác nhận chuyển tiền', mailContext)
   return { status: HttpStatusCode.OK, message: 'Đã gửi email xác nhận chuyển tiền, vui lòng kiểm tra email của bạn.' }
 })

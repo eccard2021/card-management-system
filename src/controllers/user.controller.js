@@ -135,8 +135,7 @@ export const withdrawMoneyUser = asyncHandler(async (req, res) => {
     if (await UserService.WithdrawMoneyInit(req.user, withdrawInfo))
       res.status(HttpStatusCode.OK).json({ message: 'Đã gửi email xác nhận rút tiền đến tài khoản của bạn, vui lòng kiểm tra email' })
     else {
-      res.status(HttpStatusCode.BAD_REQUEST)
-      throw new Error('Số dư của bạn không đủ để rút tiền')
+      res.status(HttpStatusCode.BAD_REQUEST).json({ message: 'Số dư của bạn không đủ để rút tiền' })
     }
   } catch (error) {
     console.log(error)

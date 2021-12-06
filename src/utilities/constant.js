@@ -20,7 +20,7 @@ export const SERVICE_ACTION_TYPE = {
 }
 
 
-let whitelist = [`http://${env.HOST}:3000`, env.FRONTEND_HOSTNAME]
+let whitelist = [env.FRONTEND_HOSTNAME]
 export const corsOptions = {
   origin: function (origin, callback) {
     callback(null, true)
