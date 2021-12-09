@@ -3,7 +3,7 @@ import { body } from 'express-validator'
 export const validateRegisterUser = () => {
   return [
     body('name')
-      .isAlpha().withMessage('Tên chỉ được chứa kí tự Alphabet')
+      .matches(/^[a-zA-Z ]+$/).withMessage('Tên chỉ được chứa kí tự Alphabet')
       .notEmpty().withMessage('Tên không được để trống'),
     body('birth', 'Ngày sinh không hợp lệ').isISO8601('yyyy-mm-dd'),
     body('isMale', 'Giới tính không hợp lệ').isBoolean(),
@@ -45,5 +45,24 @@ export const validateModifyPasswordUser = () => {
       }
       return true
     })
+  ]
+
+}
+
+export const validateChargeUser = () => {
+  return [
+    body('amount').isNumeric().withMessage('Số tiền không hợp lệ')
+  ]
+}
+
+export const validateWithdrawMoneyUser = () => {
+  return [
+    body('amount').isNumeric().withMessage('Số tiền không hợp lệ')
+  ]
+}
+
+export const validateTransferMoneyUser = () => {
+  return [
+    body('amount').isNumeric().withMessage('Số tiền không hợp lệ')
   ]
 }

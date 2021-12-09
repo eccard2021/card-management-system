@@ -5,4 +5,4 @@ const router = express.Router()
 
 router.get('/logs', protect, getTransactionLogs)
 
-export const transactionLogs = router
+export const transactionLogRoutes = router

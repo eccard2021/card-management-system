@@ -103,6 +103,11 @@ export const chargeUser = asyncHandler(async (req, res) => {
 
   //sb-q2eib8526496@personal.example.com
   //wx<q-W8S
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Lỗi giao dịch', errors: errors.array() })
+    return
+  }
   const amount = req.body.amount
   try {
     await UserService.chargeMoneyInit(amount, res)
@@ -127,6 +132,11 @@ export const chargeSubmitUser = asyncHandler(async (req, res) => {
 })
 
 export const withdrawMoneyUser = asyncHandler(async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Lỗi giao dịch', errors: errors.array() })
+    return
+  }
   const withdrawInfo = {
     emailPayPal: req.body.emailPayPal,
     amount: req.body.amount
@@ -168,6 +178,11 @@ export const forgotPassword = asyncHandler(async function () {
 })
 
 export const transferMoneyUser = asyncHandler(async function (req, res) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Lỗi giao dịch', errors: errors.array() })
+    return
+  }
   const info = {
     receiverAccNumber: req.body.accNumber,
     amount: Number(req.body.amount),

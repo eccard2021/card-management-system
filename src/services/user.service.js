@@ -17,6 +17,8 @@ const SYNC_MODE = 'false'
 
 export const findByCredentials = asyncHandler(async function (email, password) {
   let user = await User.findByCredentials(email, password)
+  if (!user)
+    return user
   let token = await user.generateAuthToken()
   return {
     _id: user._id,
@@ -145,7 +147,7 @@ export const chargeMoneyProcess = asyncHandler(async function (info, res) {
     }
     if (chargeInfo.payer.status !== 'VERIFIED') {
       res.status(HttpStatusCode.NOT_FOUND)
-      throw new Error('Giao dịnh không tồn tại hoặc chưa được xác nhận')
+      throw new Error('Giao dịch không tồn tại hoặc chưa được xác nhận')
     }
     const execute_payment_json = {
       'payer_id': chargeInfo.payer.payer_info.payer_id,

@@ -3,6 +3,7 @@ import { connectDB } from '@src/config/db'
 import env from '@src/config/environment'
 import { notFound, errHandler } from '@src/middlewares/error.middleware'
 import { apiV1 } from './routes/v1'
+import { apiV2 } from './routes/v2'
 import cors from 'cors'
 import { corsOptions } from './utilities/constant'
 import helmet from 'helmet'
@@ -21,6 +22,7 @@ const bootServer = async () => {
   app.use(helmet())
   app.use(express.json({ limit: '100kb' }))
   app.use('/v1', apiV1)
+  app.use('/v2', apiV2)
   app.use(notFound)
   app.use(errHandler)
 
