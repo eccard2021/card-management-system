@@ -5,7 +5,6 @@ import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../utilities/constant'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
-import { result } from 'lodash'
 
 
 const authUser = asyncHandler(async (req, res) => {
@@ -177,7 +176,32 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
 export const forgotPassword = asyncHandler(async function (req, res) {
   const userMail = req.body.email
   try {
-    const result = await UserService.updateForgotPassword(userMail)
+    const result = await UserService.forgotPasswordInit(userMail)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi hệ thống')
+  }
+})
+
+export const getForgotPasswordInfoUser = asyncHandler(async function (req, res) {
+  res.status(HttpStatusCode.OK).json()
+})
+
+export const forgotPasswordSubmit = asyncHandler(async function (req, res) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ errors: errors.array() })
+    return
+  }
+  const info = {
+    userId: req.token.userId,
+    newPassword: req.body.newPassword,
+    token: req.token.token
+  }
+  try {
+    let result = await UserService.updateForgotPassword(info)
     res.status(result.status).json({ message: result.message })
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)

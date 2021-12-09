@@ -12,7 +12,7 @@ const TokenSchema = mongoose.Schema({
   tokenType: {
     type: String,
     require: true,
-    enum: ['login', 'withdraw', 'transfer'],
+    enum: ['login', 'withdraw', 'transfer', 'forgot-password'],
     default: 'login'
   },
   expireAt: {

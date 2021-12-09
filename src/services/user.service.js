@@ -71,10 +71,6 @@ const sendEmailRegister = asyncHandler(async function (user, password) {
   sendMail(user.email, 'User information and password', `${JSON.stringify(user)}\npassword: ${password}`)
 })
 
-const sendEmailForgot = asyncHandler(async function (user, password) {
-  sendMail(user.email, 'Your password has changed', `New password is ${password}`)
-})
-
 export const getUserProfileById = asyncHandler(async function (userId) {
   return await User.findById(userId)
     .select('-password -__v -balanceFluctuations')
@@ -102,15 +98,35 @@ export const updateUserPassword = asyncHandler(async function (userId, passwordC
   }
 })
 
-export const updateForgotPassword = asyncHandler(async function (userMail) {
+export const forgotPasswordInit = asyncHandler(async function (userMail) {
   const user = await User.findOne({ email: userMail })
   if (!user)
     return { status: HttpStatusCode.NOT_FOUND, message: 'Email không tồn tại, vui lòng kiểm tra lại' }
-  let password = generateRandomPassword()
-  user.password = password
+  let token = jwt.sign(
+    { _id: user._id },
+    env.JWT_SECRET,
+    {
+      expiresIn: '15m'
+    })
+  let tokenSave = await Token.create({
+    userId: user._id,
+    tokenType: 'forgot-password',
+    token: token
+  })
+  await tokenSave.save()
+  const mailContext = `<p><a href="${env.FRONTEND_HOSTNAME}/user/forgot-password/verify?uid=${user._id}&token=${token}">Click vào đây reset mật khẩu</a></p>`
+  sendMail(user.email, 'LTSBANK: Reset mật khẩu', mailContext)
+  return { status: HttpStatusCode.OK, message: 'Đã gửi email xác nhận đổi mật khẩu, vui lòng kiểm tra email' }
+})
+
+export const updateForgotPassword = asyncHandler(async function (userInfo) {
+  const user = await User.findById(userInfo.userId)
+  if (!user)
+    return { status: HttpStatusCode.NOT_FOUND, message: 'User không tồn tại, vui lòng kiểm tra lại' }
+  user.password = userInfo.newPassword
   await user.save(user)
-  await sendEmailForgot(user, password)
-  return { status: HttpStatusCode.OK, message: 'Đã gửi email có chứa mật khẩu mới, vui lòng kiểm tra lại email' }
+  await Token.deleteOne({ userId: userInfo.userId, token: userInfo.token, tokenType: 'forgot-password' })
+  return { status: HttpStatusCode.OK, message: 'Đổi mật khẩu thành công, vui lòng đăng nhập lại' }
 })
 
 export const chargeMoneyInit = asyncHandler(async function (amount, res) {

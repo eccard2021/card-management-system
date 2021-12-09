@@ -2,13 +2,15 @@ import express from 'express'
 import {
   authUser, getUserProfile, registerUser,
   updateUserPassword, logOutUser, logOutAll, chargeUser, chargeSubmitUser,
-  withdrawMoneyUser, withdrawMoneySubmitUser, forgotPassword, getWithdrawMoneyInfoUser,
-  transferMoneyUser, getTransferMoneyInfoUser, transferMoneySubmitUser
+  withdrawMoneyUser, withdrawMoneySubmitUser, forgotPassword, getForgotPasswordInfoUser,
+  forgotPasswordSubmit, getWithdrawMoneyInfoUser, transferMoneyUser, getTransferMoneyInfoUser, transferMoneySubmitUser
 } from '../../controllers/user.controller'
-import { protect } from '../../middlewares/auth.middleware'
+import { protect, authForgotPassword } from '../../middlewares/auth.middleware'
 import { authWithdrawMoney, authTransferMoney } from '../../middlewares/authTransactions.middleware'
-import { validateRegisterUser, validateLoginUser, validateModifyPasswordUser,
-  validateChargeUser, validateWithdrawMoneyUser, validateTransferMoneyUser } from '../../validators/user.validator'
+import {
+  validateRegisterUser, validateLoginUser, validateModifyPasswordUser,
+  validateChargeUser, validateWithdrawMoneyUser, validateTransferMoneyUser
+} from '../../validators/user.validator'
 
 const router = express.Router()
 
@@ -23,6 +25,8 @@ router.route('/withdraw-money').post(protect, validateWithdrawMoneyUser(), withd
 router.route('/withdraw-money/verify').post(protect, authWithdrawMoney, getWithdrawMoneyInfoUser)
 router.route('/withdraw-money/submit').post(protect, authWithdrawMoney, withdrawMoneySubmitUser)
 router.route('/forgot-password').post(forgotPassword)
+router.route('/forgot-password/verify').post(authForgotPassword, getForgotPasswordInfoUser)
+router.route('/forgot-password/submit').post(authForgotPassword, validateModifyPasswordUser(), forgotPasswordSubmit)
 router.route('/transfer').post(protect, validateTransferMoneyUser(), transferMoneyUser)
 router.route('/transfer/verify').post(protect, authTransferMoney, getTransferMoneyInfoUser)
 router.route('/transfer/submit').post(protect, authTransferMoney, transferMoneySubmitUser)
