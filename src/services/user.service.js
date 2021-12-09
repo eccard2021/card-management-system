@@ -71,21 +71,9 @@ const sendEmailRegister = asyncHandler(async function (user, password) {
   sendMail(user.email, 'User information and password', `${JSON.stringify(user)}\npassword: ${password}`)
 })
 
-const randompassword = (length)=> {
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * 
-charactersLength));
- }
- return result;
-}
-
-export const sendEmailForgot = asyncHandler(async function (email,password) {
-  sendMail(email, 'Your password has changed', `New password is ${password}`)
+const sendEmailForgot = asyncHandler(async function (user, password) {
+  sendMail(user.email, 'Your password has changed', `New password is ${password}`)
 })
-
 
 export const getUserProfileById = asyncHandler(async function (userId) {
   return await User.findById(userId)
@@ -114,16 +102,15 @@ export const updateUserPassword = asyncHandler(async function (userId, passwordC
   }
 })
 
-export const updateForgotPassword = asyncHandler(async function (userId) {
-  const user = await User.findById(userId)
-  
-    let password=randompassword(7);
-    user.password = password;
-    const result= await user.save()
-   
-    return {password,result};
-  
- 
+export const updateForgotPassword = asyncHandler(async function (userMail) {
+  const user = await User.findOne({ email: userMail })
+  if (!user)
+    return { status: HttpStatusCode.NOT_FOUND, message: 'Email không tồn tại, vui lòng kiểm tra lại' }
+  let password = generateRandomPassword()
+  user.password = password
+  await user.save(user)
+  await sendEmailForgot(user, password)
+  return { status: HttpStatusCode.OK, message: 'Đã gửi email có chứa mật khẩu mới, vui lòng kiểm tra lại email' }
 })
 
 export const chargeMoneyInit = asyncHandler(async function (amount, res) {

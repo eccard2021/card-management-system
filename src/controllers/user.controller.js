@@ -5,6 +5,7 @@ import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../utilities/constant'
 import { validationResult } from 'express-validator'
 import paypal from 'paypal-rest-sdk'
+import { result } from 'lodash'
 
 
 const authUser = asyncHandler(async (req, res) => {
@@ -173,29 +174,15 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
   }
 })
 
-export const forgotPassword = asyncHandler(async function (req,res) {
- 
+export const forgotPassword = asyncHandler(async function (req, res) {
   const userMail = req.body.email
-  
-  if (await User.isExist(userMail)) {
-   
-    
-    try {
-         const user= await User.findByEmail(userMail);
-        const result= await UserService.updateForgotPassword(user._id)
-        const saveUser= await UserService.sendEmailForgot(userMail,result.password);
-      
-      res.status(HttpStatusCode.CREATED)
-      .json({ message: 'Kiem tra email de nhan mat khau moi' })
-    } catch (error) {
-      res.status(HttpStatusCode.NOT_FOUND)
-      .json({ message: 'Email khong khop voi bat ky tai khoan nao!!!' })
-    } 
-  }else{
-     res.status(HttpStatusCode.NOT_FOUND)
-      .json({ message: 'Email khong khop voi bat ky tai khoan nao!!!' })
+  try {
+    const result = await UserService.updateForgotPassword(userMail)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi hệ thống')
   }
- 
 })
 
 export const transferMoneyUser = asyncHandler(async function (req, res) {
@@ -217,7 +204,6 @@ export const transferMoneyUser = asyncHandler(async function (req, res) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Không thể gửi email')
   }
-
 })
 
 export const getTransferMoneyInfoUser = asyncHandler(async function (req, res) {
