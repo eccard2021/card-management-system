@@ -71,6 +71,22 @@ const sendEmailRegister = asyncHandler(async function (user, password) {
   sendMail(user.email, 'User information and password', `${JSON.stringify(user)}\npassword: ${password}`)
 })
 
+const randompassword = (length)=> {
+  var result           = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < length; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * 
+charactersLength));
+ }
+ return result;
+}
+
+export const sendEmailForgot = asyncHandler(async function (email,password) {
+  sendMail(email, 'Your password has changed', `New password is ${password}`)
+})
+
+
 export const getUserProfileById = asyncHandler(async function (userId) {
   return await User.findById(userId)
     .select('-password -__v -balanceFluctuations')
@@ -96,6 +112,18 @@ export const updateUserPassword = asyncHandler(async function (userId, passwordC
     message: 'Mật khẩu cũ không khớp!!',
     status: HttpStatusCode.UNAUTHORIZED
   }
+})
+
+export const updateForgotPassword = asyncHandler(async function (userId) {
+  const user = await User.findById(userId)
+  
+    let password=randompassword(7);
+    user.password = password;
+    const result= await user.save()
+   
+    return {password,result};
+  
+ 
 })
 
 export const chargeMoneyInit = asyncHandler(async function (amount, res) {

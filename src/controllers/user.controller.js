@@ -173,8 +173,29 @@ export const withdrawMoneySubmitUser = asyncHandler(async (req, res) => {
   }
 })
 
-export const forgotPassword = asyncHandler(async function () {
-
+export const forgotPassword = asyncHandler(async function (req,res) {
+ 
+  const userMail = req.body.email
+  
+  if (await User.isExist(userMail)) {
+   
+    
+    try {
+         const user= await User.findByEmail(userMail);
+        const result= await UserService.updateForgotPassword(user._id)
+        const saveUser= await UserService.sendEmailForgot(userMail,result.password);
+      
+      res.status(HttpStatusCode.CREATED)
+      .json({ message: 'Kiem tra email de nhan mat khau moi' })
+    } catch (error) {
+      res.status(HttpStatusCode.NOT_FOUND)
+      .json({ message: 'Email khong khop voi bat ky tai khoan nao!!!' })
+    } 
+  }else{
+     res.status(HttpStatusCode.NOT_FOUND)
+      .json({ message: 'Email khong khop voi bat ky tai khoan nao!!!' })
+  }
+ 
 })
 
 export const transferMoneyUser = asyncHandler(async function (req, res) {
