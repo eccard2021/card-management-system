@@ -12,7 +12,7 @@ export const getAllUsers = asyncHandler(async function (req, res) {
     const result = await UserManagementService.getUserPagingation(info)
     res.status(result.status).json(result.users)
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Lỗi hệ thống')
   }
@@ -33,7 +33,7 @@ export const getTransactionLogsByUserId = asyncHandler(async function (req, res)
   const logsInfo = {
     userId: req.query._id,
     page: req.query.page || 1,
-    limit: 2
+    limit: 10
   }
   try {
     const result = await UserManagementService.getTransactionLogsByUserId(logsInfo)

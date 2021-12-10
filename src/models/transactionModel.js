@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import aggregatePaginate from 'mongoose-aggregate-paginate-v2'
 
 const TransactionLogSchema = mongoose.Schema({
   from: {
@@ -87,6 +88,7 @@ const TransactionLogSchema = mongoose.Schema({
   timestamps: true
 })
 
+TransactionLogSchema.plugin(aggregatePaginate)
 const TransactionLog = mongoose.model('transactionlogs', TransactionLogSchema)
 
 export default TransactionLog

@@ -2,6 +2,7 @@ import User from '../../models/user.model'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../../utilities/constant'
 import TransactionLog from '../../models/transactionModel'
+import mongoose from 'mongoose'
 
 export const getUserPagingation = asyncHandler(async function (info) {
   const options = {
@@ -34,9 +35,24 @@ export const getUserProfileById = asyncHandler(async function (userId) {
 })
 
 export const getTransactionLogsByUserId = asyncHandler(async function (logsInfo) {
-  const logs = await TransactionLog.find({ '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] })
-    .select('-__v -_id')
-    .skip((logsInfo.page - 1) * logsInfo.limit).limit(logsInfo.limit)
+  const options = {
+    page: logsInfo.page,
+    limit: logsInfo.limit
+  }
+  const aggrerate = TransactionLog.aggregate([
+    {
+      '$match': {
+        '$or': [
+          { 'from.UID': mongoose.Types.ObjectId(logsInfo.userId) },
+          { 'to.UID': mongoose.Types.ObjectId(logsInfo.userId) }
+        ]
+      }
+    },
+    {
+      '$project': { __v: 0, _id: 0 }
+    }
+  ])
+  const logs = await TransactionLog.aggregatePaginate(aggrerate, options)
   return {
     status: HttpStatusCode.OK,
     transactionLogs: logs
