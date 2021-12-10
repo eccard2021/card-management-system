@@ -52,32 +52,32 @@ export const users = [
 
 export const intCredits = [
   {
-    cardUrl: 'the-lts-internaional-credit-visa-standard',
-    cardName: 'Thẻ LTS Internaional Credit VISA Standard',
+    cardUrl: 'the-tin-dung-quoc-te-lts-visa-standard',
+    cardName: 'Thẻ Tín dụng Quốc Tế LTS VISA Standard',
     isIssuing: true,
     publisher: 'VISA',
     image: '/',
     cardRank: 'Standard',
     description: 'Thẻ tín dụng VISA standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
-    creditLine: 20000000,
-    condition: 'Thu nhập/tháng từ 05 triệu VNĐ',
+    creditLine: 50000000,
+    condition: 8000000,
     statmentDay: 25,
     payWithin: 45,
     interestRate: 0.023,
     issueFee: 150000,
-    yearlyFee: 50000,
+    yearlyFee: 70000,
     exCurrency: 0.01
   },
   {
-    cardUrl: 'the-lts-internaional-credit-visa-gold',
-    cardName: 'Thẻ LTS Internaional Credit VISA Gold',
+    cardUrl: 'the-tin-dung-quoc-te-lts-visa-gold',
+    cardName: 'Thẻ Tín dụng Quốc Tế LTS VISA Gold',
     isIssuing: true,
     publisher: 'VISA',
     image: '/',
     cardRank: 'Gold',
     description: 'Thẻ tín dụng VISA Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
-    creditLine: 150000000,
-    condition: 'Thu nhập/tháng từ 20 triệu VNĐ',
+    creditLine: 250000000,
+    condition: 40000000,
     statmentDay: 25,
     payWithin: 45,
     interestRate: 0.023,
@@ -86,45 +86,45 @@ export const intCredits = [
     exCurrency: 0.01
   },
   {
-    cardUrl: 'the-lts-internaional-credit-mastercard-standard',
-    cardName: 'Thẻ LTS Internaional Credit mastercard Standard',
+    cardUrl: 'the-tin-dung-quoc-te-lts-mastercard-standard',
+    cardName: 'Thẻ Tín dụng Quốc Tế LTS Mastercard Standard',
     isIssuing: true,
     publisher: 'MasterCard',
     image: '/',
     cardRank: 'Standard',
     description: 'Thẻ tín dụng MasterCard Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
-    creditLine: 200000000,
-    condition: 'Thu nhập/tháng từ 40 triệu VNĐ',
+    creditLine: 70000000,
+    condition: 15000000,
     statmentDay: 25,
     payWithin: 45,
     interestRate: 0.025,
-    issueFee: 300000,
-    yearlyFee: 250000,
+    issueFee: 200000,
+    yearlyFee: 140000,
     exCurrency: 0.008
   },
   {
-    cardUrl: 'the-lts-internaional-credit-mastercard-gold',
-    cardName: 'Thẻ LTS Internaional Credit mastercard Gold',
+    cardUrl: 'the-tin-dung-quoc-te-lts-mastercard-gold',
+    cardName: 'Thẻ Tín dụng Quốc Tế LTS Mastercard Gold',
     isIssuing: true,
     publisher: 'MasterCard',
     image: '/',
     cardRank: 'Gold',
     description: 'Thẻ tín dụng MasterCard Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
-    creditLine: 50000000,
-    condition: 'Thu nhập/tháng từ 10 triệu VNĐ',
+    creditLine: 350000000,
+    condition: 65000000,
     statmentDay: 25,
     payWithin: 45,
     interestRate: 0.024,
-    issueFee: 200000,
-    yearlyFee: 150000,
+    issueFee: 400000,
+    yearlyFee: 300000,
     exCurrency: 0.008
-  },
+  }
 
 ]
 export const intDebits = [
   {
-    cardUrl: 'the-lts-internaional-Debit-mastercard-standard',
-    cardName: 'Thẻ LTS Internaional Debit mastercard Standard',
+    cardUrl: 'the-ghi-no-quoc-te-lts-mastercard-standard',
+    cardName: 'Thẻ Ghi nợ Quốc Tế LTS Mastercard Standard',
     isIssuing: true,
     publisher: 'MasterCard',
     image: '/',
@@ -136,8 +136,8 @@ export const intDebits = [
     exCurrency: 0.008
   },
   {
-    cardUrl: 'the-lts-internaional-Debit-mastercard-gold',
-    cardName: 'Thẻ LTS Internaional Debit mastercard Gold',
+    cardUrl: 'the-ghi-no-quoc-te-lts-mastercard-gold',
+    cardName: 'Thẻ Ghi nợ Quốc Tế LTS Mastercard Gold',
     isIssuing: true,
     publisher: 'MasterCard',
     image: '/',
@@ -149,8 +149,8 @@ export const intDebits = [
     exCurrency: 0.008
   },
   {
-    cardUrl: 'the-lts-internaional-Debit-visa-standard',
-    cardName: 'Thẻ LTS Internaional Debit VISA Standard',
+    cardUrl: 'the-ghi-no-quoc-te-lts-visa-standard',
+    cardName: 'Thẻ Ghi nợ Quốc Tế LTS VISA Standard',
     isIssuing: true,
     publisher: 'VISA',
     image: '/',
@@ -162,8 +162,8 @@ export const intDebits = [
     exCurrency: 0.0075
   },
   {
-    cardUrl: 'the-lts-internaional-Debit-visa-gold',
-    cardName: 'Thẻ LTS Internaional Debit VISA Gold',
+    cardUrl: 'the-ghi-no-quoc-te-lts-visa-gold',
+    cardName: 'Thẻ Ghi nợ Quốc Tế LTS VISA Gold',
     isIssuing: true,
     publisher: 'VISA',
     image: '/',
@@ -178,8 +178,8 @@ export const intDebits = [
 
 export const domDebits = [
   {
-    cardUrl: 'the-lts-domestic-Debit-Napas-standard',
-    cardName: 'Thẻ LTS Domestic Debit Napas Standard',
+    cardUrl: 'the-ghi-no-noi-dia-lts-Napas-standard',
+    cardName: 'Thẻ Ghi nợ Nội địa LTS Napas Standard',
     isIssuing: true,
     publisher: 'Napas',
     image: '/',

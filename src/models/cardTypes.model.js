@@ -37,7 +37,7 @@ const IntCreditsSchema = mongoose.Schema({
     required: true
   },
   condition: { //muc thu nhap de mo the, dieu kien mo the
-    type: String,
+    type: Number,
     required: true
   },
   statmentDay: { //ngay sao ke
@@ -167,6 +167,31 @@ IntCreditsSchema.post('save', function (error, doc, next) {
     throw new Error('Tên thẻ bị trùng!!!')
   } else {
     next(error)
+  }
+  if (this.isModified('cardName')) {
+    this.cardUrl = standardizeCardNameForUrl(this.cardName)
+  }
+})
+
+IntDebitsSchema.post('save', function (error, doc, next) {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    throw new Error('Tên thẻ bị trùng!!!')
+  } else {
+    next(error)
+  }
+  if (this.isModified('cardName')) {
+    this.cardUrl = standardizeCardNameForUrl(this.cardName)
+  }
+})
+
+DomDebitsSchema.post('save', function (error, doc, next) {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    throw new Error('Tên thẻ bị trùng!!!')
+  } else {
+    next(error)
+  }
+  if (this.isModified('cardName')) {
+    this.cardUrl = standardizeCardNameForUrl(this.cardName)
   }
 })
 

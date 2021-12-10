@@ -5,36 +5,16 @@ import { HttpStatusCode } from '../utilities/constant'
 import CardList from '../models/cardList.model'
 
 export const getTransactionLogs = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 0
-  const pageSize = 3
-  const skip = page * pageSize
-  const query = { _id: req.user._id }
-  /*const u = await User.findOne(query)
-    .populate({
-      path: 'balanceFluctuations.transactionLog',
-      populate: { path: 'transType' }
-    })
-    .select('balanceFluctuations.$')*/
-  /*const u = await User.aggregate([
-    { $match: { _id: req.user._id } },
-    { $unwind: '$balanceFluctuations' },
-    {
-      $project: {
-        'transactionLog': '$balanceFluctuations.transactionLog',
-        'amount': '$balanceFluctuations.amount',
-        'endingBalance': '$balanceFluctuations.endingBalance'
-      }
-    },
-    {
-      $lookup: {
-        from: 'transactionlogs',
-        localField: 'transactionLog',
-        foreignField: '_id',
-        as: 'transactionLog'
-      }
-    }
-  ])*/
-  const u = await CardList.find().populate('cardTypeId')
-  console.log(u)
-  res.json(u)
+  const logsInfo = {
+    userId: req.query._id,
+    page: req.query.page || 1,
+    limit: 10
+  }
+  try {
+    const result = await User.getTransactionLogs(logsInfo)
+    res.status(result.status).json(result.transactionLogs)
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi hệ thống')
+  }
 })

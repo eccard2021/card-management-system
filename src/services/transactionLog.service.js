@@ -1,5 +1,9 @@
 import { convertCurrency, getRate } from '../utilities/currency'
 import mongoose from 'mongoose'
+import User from '../models/user.model'
+import asyncHandler from 'express-async-handler'
+import TransactionLog from '../models/transactionModel'
+import { HttpStatusCode } from '../utilities/constant'
 
 export const createLogChargePayPal = async (userInfo, successInfo, service) => {
   let transactionLog = {
@@ -103,3 +107,13 @@ export const createLogTransfer = async function (remitter, receiver, transferinf
   await service.calculateServiceFee(transactionLog)
   return transactionLog
 }
+
+export const getTransactionLogs = asyncHandler(async (logsInfo) => {
+  const logs = await TransactionLog.find({ '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] })
+    .select('-__v -_id')
+    .skip((logsInfo.page - 1) * logsInfo.limit).limit(logsInfo.limit)
+  return {
+    status: HttpStatusCode.OK,
+    transactionLogs: logs
+  }
+})

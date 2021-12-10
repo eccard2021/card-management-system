@@ -1,7 +1,8 @@
 import express from 'express'
 import { adminRoutes } from './admin.route'
+import { userManagementRoutes } from './userManagement.route'
 import { HttpStatusCode } from '../../utilities/constant'
-
+import { authAdmin } from '../../middlewares/authAdmin.middleware'
 const router = express.Router()
 
 /**
@@ -10,10 +11,12 @@ const router = express.Router()
 
 router.get('/status', (req, res) => res.status(HttpStatusCode.OK).json({ status: 'OK!' }))
 
+
+router.use(authAdmin)
 /**Admin API */
 router.use('/admin', adminRoutes)
-/**Users API */
-// router.use('/users', userRoutes)
+/**User Management API */
+router.use('/users', userManagementRoutes)
 // /**CardType API */
 // router.use('/card-type', cardTypeRoutes)
 // /**Transaction Log API */

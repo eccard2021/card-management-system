@@ -4,7 +4,7 @@ import User from '../models/user.model'
 import Token from '../models/token.model'
 import { HttpStatusCode } from '@src/utilities/constant'
 
-const authAdmin = asyncHandler(async (req, res, next) => {
+export const authAdmin = asyncHandler(async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       let token = req.headers.authorization.replace('Bearer ', '')
@@ -30,5 +30,3 @@ const authAdmin = asyncHandler(async (req, res, next) => {
     throw new Error('Unauthorized token')
   }
 })
-
-export { authAdmin }
