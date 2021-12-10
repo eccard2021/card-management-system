@@ -162,37 +162,22 @@ const DomDebitsSchema = mongoose.Schema({
   timestamps: true
 })
 
-IntCreditsSchema.post('save', function (error, doc, next) {
-  if (error.name === 'MongoError' && error.code === 11000) {
-    throw new Error('Tên thẻ bị trùng!!!')
-  } else {
-    next(error)
-  }
-  if (this.isModified('cardName')) {
+IntCreditsSchema.pre('save', async function (next) {
+  if (this.isModified('cardName'))
     this.cardUrl = standardizeCardNameForUrl(this.cardName)
-  }
+  next()
 })
 
-IntDebitsSchema.post('save', function (error, doc, next) {
-  if (error.name === 'MongoError' && error.code === 11000) {
-    throw new Error('Tên thẻ bị trùng!!!')
-  } else {
-    next(error)
-  }
-  if (this.isModified('cardName')) {
+IntDebitsSchema.pre('save', async function (next) {
+  if (this.isModified('cardName'))
     this.cardUrl = standardizeCardNameForUrl(this.cardName)
-  }
+  next()
 })
 
-DomDebitsSchema.post('save', function (error, doc, next) {
-  if (error.name === 'MongoError' && error.code === 11000) {
-    throw new Error('Tên thẻ bị trùng!!!')
-  } else {
-    next(error)
-  }
-  if (this.isModified('cardName')) {
+DomDebitsSchema.pre('save', async function (next) {
+  if (this.isModified('cardName'))
     this.cardUrl = standardizeCardNameForUrl(this.cardName)
-  }
+  next()
 })
 
 const IntCredits = mongoose.model('IntCredits', IntCreditsSchema)

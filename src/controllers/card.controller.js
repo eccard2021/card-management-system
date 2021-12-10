@@ -19,27 +19,6 @@ const findCardByTypeAndUrlPath = async (type, urlPath) => {
   }
 }
 
-export const createCardType = asyncHandler(async (req, res) => {
-  if (!req.user.isAdmin) {
-    res.status(HttpStatusCode.UNAUTHORIZED)
-    throw new Error('You aren\'t admin!!!')
-  }
-  let value = req.body
-  value.cardUrl = standardizeCardNameForUrl(value.cardName)
-  try {
-    await combination[value.cardType].create(value)
-  }
-  catch (error) {
-    if (error.code === 11000)
-      throw new Error('Tên thẻ bị trùng!!!')
-    else {
-      res.status(HttpStatusCode.NOT_FOUND)
-      throw new Error('Not Found')
-    }
-  }
-  res.json({ message: 'Tạo thẻ thành công' })
-})
-
 export const getCardByTypeAndUrlPath = asyncHandler(async (req, res) => {
   let card = await findCardByTypeAndUrlPath(req.params.cardType, req.params.urlPath)
   if (!card) {

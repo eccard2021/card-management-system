@@ -4,7 +4,11 @@ import { HttpStatusCode } from '../../utilities/constant'
 import TransactionLog from '../../models/transactionModel'
 
 export const getUserPagingation = asyncHandler(async function (info) {
-  const listUsers = await User.aggregate([
+  const options = {
+    page: info.page,
+    limit: info.limit
+  }
+  const aggregate = User.aggregate([
     {
       '$match': { '_id': { '$ne': info.adminId } }
     },
@@ -13,14 +17,9 @@ export const getUserPagingation = asyncHandler(async function (info) {
         _id: 1, name: 1, birth: 1, isMale: 1, email: 1, accNumber: 1,
         personalIdNumber: '$personalIdNumber.number', job: '$job.title', phoneNumber: 1
       }
-    },
-    {
-      '$skip': (info.page - 1) * info.limit
-    },
-    {
-      '$limit': info.limit
     }
   ])
+  const listUsers = await User.aggregatePaginate(aggregate, options)
   return {
     status: HttpStatusCode.OK,
     users: listUsers
@@ -45,9 +44,13 @@ export const getTransactionLogsByUserId = asyncHandler(async function (logsInfo)
 })
 
 export const searchUserByProperty = asyncHandler(async function (searchInfo) {
+  const options = {
+    page: searchInfo.page,
+    limit: searchInfo.limit
+  }
   const matchObj = { '_id': { '$ne': searchInfo.adminId } }
   matchObj[`${searchInfo.property}`] = new RegExp(`.*${searchInfo.keyword}.*`, 'gi')
-  const user = await User.aggregate([
+  const aggrerate = User.aggregate([
     {
       '$project': {
         _id: 1, name: 1, birth: 1, isMale: 1, email: 1, accNumber: 1,
@@ -56,17 +59,12 @@ export const searchUserByProperty = asyncHandler(async function (searchInfo) {
     },
     {
       '$match': matchObj
-    },
-    {
-      '$skip': (searchInfo.page - 1) * searchInfo.limit
-    },
-    {
-      '$limit': searchInfo.limit
     }
   ])
+  const listUsers = await User.aggregatePaginate(aggrerate, options)
   return {
     status: HttpStatusCode.OK,
-    user: user
+    user: listUsers
   }
 })
 

@@ -5,13 +5,14 @@ import * as UserManagementService from '../../services/admin/userManagement.serv
 export const getAllUsers = asyncHandler(async function (req, res) {
   const info = {
     page: req.query.page || 1,
-    limit: 10,
+    limit: 5,
     adminId: req.admin._id
   }
   try {
     const result = await UserManagementService.getUserPagingation(info)
     res.status(result.status).json(result.users)
   } catch (error) {
+    console.log(error);
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Lỗi hệ thống')
   }

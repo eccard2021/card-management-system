@@ -4,6 +4,7 @@ import Jwt from 'jsonwebtoken'
 import env from '../config/environment'
 import Token from './token.model'
 import { roundNumber } from '../utilities/currency'
+import aggregatePaginate from 'mongoose-aggregate-paginate-v2'
 
 const UserSchema = mongoose.Schema({
   //noi dung KH nhap
@@ -189,6 +190,8 @@ UserSchema.pre('save', async function (next) {
   }
   next()
 })
+
+UserSchema.plugin(aggregatePaginate)
 
 const User = mongoose.model('Users', UserSchema)
 

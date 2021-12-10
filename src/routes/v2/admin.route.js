@@ -6,6 +6,7 @@ import { validateRegisterUser, validateModifyPasswordUser } from '../../validato
 const router = express.Router()
 
 router.post('/login', AdminController.authAdminController)
+router.use(authAdmin)
 router.route('/profile')
   .get(authAdmin, AdminController.getAdminProfile)
   .put(authAdmin, validateRegisterUser(), AdminController.updateAdminProfile)
