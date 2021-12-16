@@ -48,7 +48,7 @@ export const paymentGatewayInit = async function (orderInfo) {
 
 export const paymentGatewayCancel = async function (orderInfo) {
   const gateway = await PaymentGate.findOne({ _id: orderInfo.gateId, gateOwner: orderInfo.orderOwner })
-  if (gateway)
+  if (!gateway)
     return { status: HttpStatusCode.NOT_FOUND, message: 'Thông tin không hợp lệ' }
   let order = await OrderForm.create(orderInfo)
   await order.save()

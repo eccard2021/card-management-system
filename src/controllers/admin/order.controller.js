@@ -46,5 +46,16 @@ export const approveOrder = asyncHandler(async function (req, res) {
 })
 
 export const denyOrder = asyncHandler(async function (req, res) {
-
+  const denyInfo = {
+    bankCmt: req.body.bankCmt,
+    orderId: req.body.orderId
+  }
+  try {
+    const result = await OrderService.denyOrder(denyInfo)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi hệ thống')
+  }
 })

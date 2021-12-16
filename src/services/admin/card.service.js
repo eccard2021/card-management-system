@@ -7,6 +7,13 @@ export const checkUserHaveCardType = async function (order) {
   return true
 }
 
+export const checkUserOwnCard = async function (order) {
+  const card = await CardList.findOne({ accOwner: order.orderOwner, _id: order.cardId })
+  if (!card)
+    return false
+  return true
+}
+
 export const registCardForUser = async function (order) {
   let PIN = '111111'
   const card = await CardList.findOne({ accOwner: null, cardType: order.cardType, cardTypeId: order.cardTypeId })
@@ -17,5 +24,11 @@ export const registCardForUser = async function (order) {
   card.expiredDate.setFullYear(card.validDate.getFullYear() + 10)
   card.PIN = PIN
   await card.save()
+  card.PIN = PIN
+  return card
+}
+
+export const cancelCard = async function (order) {
+  const card = await CardList.findOneAndDelete({ _id: order.cardId })
   return card
 }
