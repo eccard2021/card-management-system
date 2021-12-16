@@ -37,7 +37,7 @@ export const approveOrder = asyncHandler(async function (req, res) {
   }
   try {
     const result = await OrderService.approveOrder(approveInfo)
-    res.status(result.status).json(result.message)
+    res.status(result.status).json({ message: result.message })
   } catch (error) {
     console.log(error)
     res.status(HttpStatusCode.INTERNAL_SERVER)

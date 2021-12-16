@@ -1,6 +1,7 @@
 import { HttpStatusCode } from '../../utilities/constant'
 import OrderForm from '../../models/orderForm.model'
 import * as CardService from './card.service'
+import * as PaymentGatewayService from './paymentGateway.service'
 import mongoose from 'mongoose'
 import User from '../../models/user.model'
 import sendMail from '../../utilities/mailer'
@@ -93,6 +94,24 @@ const cardInit = async function (approveInfo, order) {
   }
 }
 
+const paymentGatewayInit = async function (approveInfo, order) {
+  if (await PaymentGatewayService.checkUserHavePaymentGateway(order))
+    return {
+      status: HttpStatusCode.OK,
+      message: 'Người dùng đã có cổng thanh toán loại này'
+    }
+  const gateway = await PaymentGatewayService.registPaymentGateway(order)
+  order.bankCmt = approveInfo.bankCmt
+  order.status = 'approve'
+  order.save()
+  const user = await User.findById(order.orderOwner)
+  sendMail(user.email, 'Thông tin thẻ', JSON.stringify(gateway))
+  return {
+    status: HttpStatusCode.OK,
+    message: 'Tạo cổng thanh toán thành công, đã gửi thông tin thẻ vào email của người dùng'
+  }
+}
+
 export const approveOrder = async function (approveInfo) {
   let order = await OrderForm.findById(approveInfo.orderId)
   if (!order)
@@ -113,7 +132,7 @@ export const approveOrder = async function (approveInfo) {
       break
     }
     case 'PaymentGate_Init': {
-      break
+      return await paymentGatewayInit(approveInfo, order)
     }
     case 'PaymentGate_Cancel': {
       break

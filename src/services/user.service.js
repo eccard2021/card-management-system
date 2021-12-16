@@ -39,7 +39,7 @@ export const findByCredentials = asyncHandler(async function (email, password) {
 })
 
 export const registerUser = asyncHandler(async function (newUser) {
-  let password = generateRandomPassword()
+  let password = generateRandomPassword(12)
   let numberOfUser = (await User.count({})) + 1
   let user = await User.create({
     name: newUser.name,
