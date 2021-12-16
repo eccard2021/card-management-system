@@ -11,7 +11,7 @@ export const authAdminController = asyncHandler(async function (req, res) {
   // }
   const { email, password } = req.body
   const admin = await AdminService.findByCredentials(email, password)
-  if (!admin) {
+  if (!admin || !admin.isAdmin) {
     res.status(HttpStatusCode.UNAUTHORIZED)
     throw new Error('Email hoặc password không hợp lệ')
   }
