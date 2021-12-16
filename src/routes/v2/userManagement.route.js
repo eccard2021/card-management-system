@@ -6,7 +6,7 @@ const router = express.Router()
 router.get('/all-users', UserManagementController.getAllUsers)
 router.route('/user/details')
   .get(UserManagementController.getUserProfileById)
-  .put()
+  .put(UserManagementController.updateUserProfile)
 router.get('/user/transaction-logs', UserManagementController.getTransactionLogsByUserId)
 router.get('/user-search', UserManagementController.searchUser)
 
