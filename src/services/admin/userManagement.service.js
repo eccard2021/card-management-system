@@ -86,7 +86,7 @@ export const searchUserByProperty = asyncHandler(async function (searchInfo) {
 
 export const updateUserProfile = asyncHandler(async function (userInfo) {
   let user = await User.findById(userInfo._id)
-  let { newProfile } = userInfo
+  let newProfile = userInfo
   user.name = newProfile.name
   user.birth = newProfile.birth
   user.isMale = newProfile.isMale

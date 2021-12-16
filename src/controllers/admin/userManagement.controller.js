@@ -65,8 +65,9 @@ export const updateUserProfile = asyncHandler(async function (req, res) {
   const userInfo = req.body
   try {
     const result = await UserManagementService.updateUserProfile(userInfo)
-    res.status(result.status).json(result.user)
+    res.status(result.status).json({ message: result.message })
   } catch (error) {
+    console.log(error)
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Lỗi hệ thống')
   }
