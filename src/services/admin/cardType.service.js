@@ -8,8 +8,16 @@ const combination = {
     fields: ['isIssuing', 'publisher', 'cardName', 'image', 'cardRank', 'description', 'creditLine',
       'condition', 'statmentDay', 'payWithin', 'interestRate', 'issueFee', 'yearlyFee', 'exCurrency']
   },
-  intDebits: IntDebits,
-  domDebits: DomDebits
+  intDebits: {
+    model: IntDebits,
+    fields: ['isIssuing', 'publisher', 'cardName', 'image', 'cardRank',
+      'description', 'maxPay', 'issueFee', 'yearlyFee', 'exCurrency']
+  },
+  domDebits: {
+    model: DomDebits,
+    fields: ['isIssuing', 'publisher', 'cardName', 'image', 'cardRank',
+      'description', 'issueFee', 'yearlyFee']
+  }
 }
 
 export const createCardType = asyncHandler(async (newCardInfo) => {
@@ -44,7 +52,7 @@ export const createCardType = asyncHandler(async (newCardInfo) => {
   }
 })
 
-asyncHandler(async function (cardInfo) {
+export const updateCardType = asyncHandler(async function (cardInfo) {
   let info = cardInfo.info
   let cardType = cardInfo.cardType
   if (!combination[cardType]) {
@@ -78,5 +86,39 @@ asyncHandler(async function (cardInfo) {
   return {
     status: HttpStatusCode.OK,
     message: oldCard
+  }
+})
+
+export const getCardByTypeAndUrlPath = asyncHandler(async function (cardInfo) {
+  if (!combination[cardInfo.cardType]) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Không tìm thấy loại thẻ tương ứng'
+    }
+  }
+  let cardType = await combination[cardInfo.cardType].model.findOne({ cardUrl: cardInfo.urlPath })
+  if (!cardType) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Không tìm thấy thông tin thẻ'
+    }
+  }
+  return {
+    status: HttpStatusCode.OK,
+    message: cardType
+  }
+})
+
+export const getListCardsByType = asyncHandler(async function (cardTypeInfo) {
+  if (!combination[cardTypeInfo.cardType]) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Không tìm thấy loại thẻ tương ứng'
+    }
+  }
+  let listCardType = await combination[cardTypeInfo.cardType].model.find()
+  return {
+    status: HttpStatusCode.OK,
+    message: listCardType
   }
 })

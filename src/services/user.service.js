@@ -13,6 +13,7 @@ import * as TransactionLogService from './transactionLog.service'
 import TransactionLog from '../models/transactionModel'
 import { convertCurrency } from '../utilities/currency'
 
+
 const SYNC_MODE = 'false'
 
 export const findByCredentials = asyncHandler(async function (email, password) {

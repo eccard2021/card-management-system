@@ -3,6 +3,7 @@ import { HttpStatusCode } from '@src/utilities/constant'
 import { userRoutes } from './user.route'
 import { cardTypeRoutes } from './cardType.route'
 import { transactionLogRoutes } from './transactionLog.route'
+import { orderRoutes } from './order.route'
 
 const router = express.Router()
 
@@ -18,5 +19,6 @@ router.use('/user', userRoutes)
 router.use('/card-type', cardTypeRoutes)
 /**Transaction Log API */
 router.use('/transaction-logs', transactionLogRoutes)
-
+/**Order API */
+router.use('/order', orderRoutes)
 export const apiV1 = router

@@ -4,6 +4,7 @@ import { userManagementRoutes } from './userManagement.route'
 import { cardTypeRoutes } from './cardType.route'
 import { HttpStatusCode } from '../../utilities/constant'
 import { authAdmin } from '../../middlewares/authAdmin.middleware'
+import { orderRoutes } from './order.route'
 const router = express.Router()
 
 /**
@@ -21,5 +22,7 @@ router.use('/users', userManagementRoutes)
 router.use('/card-type', cardTypeRoutes)
 // /**Transaction Log API */
 // router.use('/transaction-logs', transactionLogRoutes)
+/**Order API */
+router.use('/orders', orderRoutes)
 
 export const apiV2 = router

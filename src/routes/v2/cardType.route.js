@@ -5,11 +5,11 @@ import * as CardTypeController from '../../controllers/admin/cardManagement.cont
 const router = express.Router()
 
 router.route('/:cardType')
+  .get(CardTypeController.getListCardsByType)
   .post(CardTypeController.createCardType)
-  .put()
+router.route('/:cardType/:urlPath')
+  .get(CardTypeController.getCardByTypeAndUrlPath)
+  .put(CardTypeController.updateCardType)
 //.delete()
-/*router.route('/cards').get(getAllCardTypes)
-router.route('/:cardType').get(getOneCardType)
-router.route('/:cardType/:urlPath').get(getCardByTypeAndUrlPath)*/
 
 export const cardTypeRoutes = router

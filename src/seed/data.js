@@ -56,7 +56,7 @@ export const intCredits = [
     cardName: 'Thẻ Tín dụng Quốc Tế LTS VISA Standard',
     isIssuing: true,
     publisher: 'VISA',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintCredits%2Fthe-lts-internaional-credit-visa-standard.png?alt=media',
     cardRank: 'Standard',
     description: 'Thẻ tín dụng VISA standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
     creditLine: 50000000,
@@ -73,7 +73,7 @@ export const intCredits = [
     cardName: 'Thẻ Tín dụng Quốc Tế LTS VISA Gold',
     isIssuing: true,
     publisher: 'VISA',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintCredits%2Fthe-lts-internaional-credit-visa-gold.png?alt=media',
     cardRank: 'Gold',
     description: 'Thẻ tín dụng VISA Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
     creditLine: 250000000,
@@ -90,7 +90,7 @@ export const intCredits = [
     cardName: 'Thẻ Tín dụng Quốc Tế LTS Mastercard Standard',
     isIssuing: true,
     publisher: 'MasterCard',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintCredits%2Fthe-lts-internaional-credit-mastercard-standard.png?alt=media',
     cardRank: 'Standard',
     description: 'Thẻ tín dụng MasterCard Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
     creditLine: 70000000,
@@ -107,7 +107,7 @@ export const intCredits = [
     cardName: 'Thẻ Tín dụng Quốc Tế LTS Mastercard Gold',
     isIssuing: true,
     publisher: 'MasterCard',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintCredits%2Fthe-lts-internaional-credit-mastercard-gold.png?alt=media',
     cardRank: 'Gold',
     description: 'Thẻ tín dụng MasterCard Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu, Chi tiêu trước - trả tiền sau - Thời gian miễn lãi tối đa 45 ngày.',
     creditLine: 350000000,
@@ -121,13 +121,14 @@ export const intCredits = [
   }
 
 ]
+
 export const intDebits = [
   {
     cardUrl: 'the-ghi-no-quoc-te-lts-mastercard-standard',
     cardName: 'Thẻ Ghi nợ Quốc Tế LTS Mastercard Standard',
     isIssuing: true,
     publisher: 'MasterCard',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintDebits%2Fthe-lts-internaional-Debit-mastercard-standard.png?alt=media',
     cardRank: 'Standard',
     description: 'Thẻ ghi nợ quốc tế MasterCard Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
     maxPay: 400000000,
@@ -140,7 +141,7 @@ export const intDebits = [
     cardName: 'Thẻ Ghi nợ Quốc Tế LTS Mastercard Gold',
     isIssuing: true,
     publisher: 'MasterCard',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintDebits%2Fthe-lts-internaional-Debit-mastercard-gold.png?alt=media',
     cardRank: 'Gold',
     description: 'Thẻ ghi nợ quốc tế MasterCard Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
     maxPay: 800000000,
@@ -153,7 +154,7 @@ export const intDebits = [
     cardName: 'Thẻ Ghi nợ Quốc Tế LTS VISA Standard',
     isIssuing: true,
     publisher: 'VISA',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintDebits%2Fthe-lts-internaional-Debit-visa-standard.png?alt=media',
     cardRank: 'Standard',
     description: 'Thẻ ghi nợ quốc tế VISA Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
     maxPay: 500000000,
@@ -166,7 +167,7 @@ export const intDebits = [
     cardName: 'Thẻ Ghi nợ Quốc Tế LTS VISA Gold',
     isIssuing: true,
     publisher: 'VISA',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FintDebits%2Fthe-lts-internaional-Debit-visa-gold.png?alt=media',
     cardRank: 'Gold',
     description: 'Thẻ ghi nợ quốc tế VISA Gold, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trên toàn cầu.',
     maxPay: 700000000,
@@ -182,7 +183,7 @@ export const domDebits = [
     cardName: 'Thẻ Ghi nợ Nội địa LTS Napas Standard',
     isIssuing: true,
     publisher: 'Napas',
-    image: '/',
+    image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FdomDebits%2Fthe-lts-domestic-Debit-Napas-standard.png?alt=media',
     cardRank: 'Standard',
     description: 'Thẻ ghi nợ nội địa Napas Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trong nội địa Quốc Gia',
     issueFee: 0,
@@ -232,208 +233,244 @@ export const cardList = [
   /////////////////////////////INT Credit/////////////////////////////////////
   //////////VISA
   {
-    cardNumber: '4000 0200 0000 0000',
+    cardNumber: '4000020000000000',
     publisher: 'VISA',
     CVV: '828',
+    PIN: '123456',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588c',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   {
-    cardNumber: '4484 6000 0000 0004',
+    cardNumber: '4484600000000004',
     publisher: 'VISA',
     CVV: '737',
+    PIN: '159753',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588c',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   {
-    cardNumber: '4000 6400 0000 0005',
+    cardNumber: '4000640000000005',
     publisher: 'VISA',
     CVV: '697',
+    PIN: '145365',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588d',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   {
-    cardNumber: '4003 5500 0000 0003',
+    cardNumber: '4003550000000003',
     publisher: 'VISA',
     CVV: '831',
+    PIN: '456852',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588d',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   /////////MASTERCARD
   {
-    cardNumber: '2223 0000 4841 0010',
+    cardNumber: '2223000048410010',
     publisher: 'MasterCard',
     CVV: '182',
+    PIN: '789456',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588e',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   {
-    cardNumber: '2222 4000 1000 0008',
+    cardNumber: '2222400010000008',
     publisher: 'MasterCard',
     CVV: '141',
+    PIN: '654789',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588e',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   {
-    cardNumber: '5100 0600 0000 0002',
+    cardNumber: '5100060000000002',
     publisher: 'MasterCard',
     CVV: '697',
+    PIN: '985654',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588f',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   {
-    cardNumber: '2222 4000 3000 0004',
+    cardNumber: '2222400030000004',
     publisher: 'MasterCard',
     CVV: '831',
+    PIN: '152365',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d588f',
-    cardType: 'IntCredits'
+    cardType: 'IntCredits',
+    currentUsed: 0
   },
   /////////////////////////INT Debit/////////////////////////////
   //////////////////VISA
   {
-    cardNumber: '4000 1600 0000 0004',
+    cardNumber: '4000160000000004',
     publisher: 'VISA',
     CVV: '828',
+    PIN: '110511',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5893',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '4607 0000 0000 0009',
+    cardNumber: '4607000000000009',
     publisher: 'VISA',
     CVV: '737',
+    PIN: '485325',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5893',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '4000 7600 0000 0001',
+    cardNumber: '4000760000000001',
     publisher: 'VISA',
     CVV: '697',
+    PIN: '759153',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5894',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '4017 3400 0000 0003',
+    cardNumber: '4017340000000003',
     publisher: 'VISA',
     CVV: '831',
+    PIN: '845632',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5894',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   /////////MASTERCARD
   {
-    cardNumber: '2222 4000 6000 0007',
+    cardNumber: '2222400060000007',
     publisher: 'MasterCard',
     CVV: '182',
+    PIN: '110301',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5891',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '2223 5204 4356 0010',
+    cardNumber: '2223520443560010',
     publisher: 'MasterCard',
     CVV: '141',
+    PIN: '741236',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5891',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '2222 4000 7000 0005',
+    cardNumber: '2222400070000005',
     publisher: 'MasterCard',
     CVV: '697',
+    PIN: '147896',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5892',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '5555 3412 4444 1115',
+    cardNumber: '5555341244441115',
     publisher: 'MasterCard',
     CVV: '831',
+    PIN: '4545652',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5892',
-    cardType: 'IntDebits'
+    cardType: 'IntDebits',
+    currentUsed: 0
   },
 
   /////////////////////////dom Debit/////////////////////////////
   //////////////////NAPAS
   {
-    cardNumber: '9704 2500 1234 5601',
+    cardNumber: '9704250012345601',
     publisher: 'NAPAS',
     CVV: '828',
+    PIN: '110280',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5896',
-    cardType: 'DomDebits'
+    cardType: 'DomDebits',
+    currentUsed: 0
   },
   {
-    cardNumber: '9704 2500 6543 2110',
+    cardNumber: '9704250065432110',
     publisher: 'NAPAS',
     CVV: '828',
+    PIN: '110301',
     isActive: false,
     accOwner: null,
     validDate: null,
     expiredDate: null,
     cardTypeId: '61a88590e5630c69fe5d5896',
-    cardType: 'DomDebits'
+    cardType: 'DomDebits',
+    currentUsed: 0
   }
 ]

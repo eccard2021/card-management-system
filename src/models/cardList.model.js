@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
 
-const cardListSchema = mongoose.Schema({
+const CardListSchema = mongoose.Schema({
   cardNumber: {
     type: String,
     unique: true,
@@ -11,6 +12,10 @@ const cardListSchema = mongoose.Schema({
     require: true
   },
   CVV: {
+    type: String,
+    required: true
+  },
+  PIN: {
     type: String,
     required: true
   },
@@ -41,11 +46,39 @@ const cardListSchema = mongoose.Schema({
     type: String,
     required: true,
     enum: ['IntCredits', 'IntDebits', 'DomDebits']
+  },
+  currentUsed: { //hiện dụng
+    type: Number,
+    required: true,
+    default: 0
   }
 }, {
   timestamps: true
 })
 
-const CardList = mongoose.model('cardList', cardListSchema)
+//--------------------------------------HOOKS--------------------------------------------
+
+CardListSchema.pre('insertMany', async function (next, docs) {
+  if (Array.isArray(docs) && docs.length) {
+    const hashedCard = docs.map(async (card) => {
+      const salt = await bcrypt.genSalt(10)
+      card.PIN = await bcrypt.hash(card.PIN, salt)
+    })
+    docs = await Promise.all(hashedCard)
+    next()
+  } else {
+    return next(new Error('Card list should not be empty'))
+  }
+})
+
+CardListSchema.pre('save', async function (next) {
+  if (this.isModified('PIN')) {
+    const salt = await bcrypt.genSalt(10)
+    this.PIN = await bcrypt.hash(this.PIN, salt)
+  }
+  next()
+})
+
+const CardList = mongoose.model('cardList', CardListSchema)
 
 export default CardList

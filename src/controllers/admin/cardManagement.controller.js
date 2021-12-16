@@ -22,10 +22,39 @@ export const updateCardType = asyncHandler(async function (req, res) {
     info: req.body
   }
   try {
-    const result = await CardTypeService.createCardType(cardInfo)
+    const result = await CardTypeService.updateCardType(cardInfo)
     res.status(result.status).json({ message: result.message })
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi hệ thống')
+  }
+})
+
+export const getCardByTypeAndUrlPath = asyncHandler(async function (req, res) {
+  let cardInfo = {
+    cardType: req.params.cardType,
+    urlPath: req.params.urlPath
+  }
+  try {
+    const result = await CardTypeService.getCardByTypeAndUrlPath(cardInfo)
+    res.status(result.status).json(result.message)
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER)
+    throw new Error('Lỗi hệ thống')
+  }
+})
+
+export const getListCardsByType = asyncHandler(async function (req, res) {
+  const cardTypeInfo = {
+    cardType: req.params.cardType,
+    page: req.query.page || 1,
+    limit: 10
+  }
+  try {
+    const result = await CardTypeService.getListCardsByType(cardTypeInfo)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    res.status(HttpStatusCode.OK)
     throw new Error('Lỗi hệ thống')
   }
 })

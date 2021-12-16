@@ -183,6 +183,19 @@ UserSchema.statics.isExist = async function (email) {
 
 //--------------------------------------HOOKS--------------------------------------------
 
+UserSchema.pre('insertMany', async function (next, docs) {
+  if (Array.isArray(docs) && docs.length) {
+    const hashedUser = docs.map(async (user) => {
+      const salt = await bcrypt.genSalt(10)
+      user.password = await bcrypt.hash(user.password, salt)
+    })
+    docs = await Promise.all(hashedUser)
+    next()
+  } else {
+    return next(new Error('User list should not be empty'))
+  }
+})
+
 UserSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     const salt = await bcrypt.genSalt(10)

@@ -15,22 +15,22 @@ connectDB()
 
 const deleteData = async () => {
   //await User.deleteMany()
-  await IntCredits.deleteMany()
-  await IntDebits.deleteMany()
-  await DomDebits.deleteMany()
+  // await IntCredits.deleteMany()
+  // await IntDebits.deleteMany()
+  // await DomDebits.deleteMany()
   // await Service.deleteMany()
-  //await CardList.deleteMany()
+  await CardList.deleteMany()
 }
 
 const importData = async () => {
   try {
     await deleteData()
     //await User.insertMany(users)
-    await IntCredits.insertMany(intCredits)
-    await IntDebits.insertMany(intDebits)
-    await DomDebits.insertMany(domDebits)
+    //await IntCredits.insertMany(intCredits)
+    //await IntDebits.insertMany(intDebits)
+    //await DomDebits.insertMany(domDebits)
     //await Service.insertMany(services)
-    //await CardList.insertMany(cardList)
+    await CardList.insertMany(cardList)
     console.log('Data Imported !')
     process.exit()
 
