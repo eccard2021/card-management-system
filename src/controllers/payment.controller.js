@@ -24,8 +24,15 @@ export const internationalPayment = asyncHandler(async function (req, res) {
     apiKey: req.body.apiKey,
     cardNumber: req.body.cardNumber,
     expiredDate: req.body.expiredDate,
-    CVV: req.body.PIN,
+    CVV: req.body.CVV,
     amount: req.body.amount,
     currency: req.body.currency
+  }
+  try {
+    const result = await PaymentService.internationalPaymentProcess(paymentInfo)
+    res.status(result.status).json(result.paymentInfo || { message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({ message: 'Lỗi hệ thống' })
   }
 })

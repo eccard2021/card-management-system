@@ -111,7 +111,7 @@ export const createLogPayment = async function (remitter, receiver, paymentInfo,
   let transactionLog = {
     from: {
       bank: 'LTSBANK',
-      number: paymentInfo.cardNumber,
+      number: paymentInfo.card.cardNumber,
       remitterName: remitter.name,
       UID: new mongoose.Types.ObjectId(remitter._id)
     },
@@ -143,6 +143,7 @@ export const createLogPayment = async function (remitter, receiver, paymentInfo,
 }
 
 export const createLogPaymentMerchant = async function (remitter, paymentInfo, service) {
+  let fee = await convertCurrency(paymentInfo.currency, 'VND', Number(paymentInfo.amount)) * service.fee_rate
   let transactionLog = {
     from: {
       bank: 'LTSBANK',
@@ -156,12 +157,12 @@ export const createLogPaymentMerchant = async function (remitter, paymentInfo, s
       receiverName: 'LTSBANK'
     },
     fromCurrency: {
-      transactionAmount: Number(paymentInfo.amount) * service.fee_rate,
+      transactionAmount: fee,
       transactionFee: 0,
       currency_code: 'VND'
     },
     toCurrency: {
-      transactionAmount: Number(paymentInfo.amount) * service.fee_rate,
+      transactionAmount: fee,
       transactionFee: 0,
       currency_code: 'VND'
     },
@@ -173,12 +174,62 @@ export const createLogPaymentMerchant = async function (remitter, paymentInfo, s
 }
 
 export const getTransactionLogs = asyncHandler(async (logsInfo) => {
-  const logs = await TransactionLog.find({ '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] })
-    .select('-__v -_id')
-    .skip((logsInfo.page - 1) * logsInfo.limit).limit(logsInfo.limit)
-    .sort({ createdAt: -1 })
+  // const logs = await TransactionLog.find({ '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] })
+  //   .select('-__v -_id')
+  //   .skip((logsInfo.page - 1) * logsInfo.limit).limit(logsInfo.limit)
+  //   .sort({ createdAt: -1 })
+  const options = {
+    page: logsInfo.page,
+    limit: logsInfo.limit
+  }
+  const aggregate = TransactionLog.aggregate([
+    {
+      '$match': { '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] }
+    },
+    {
+      '$project': {
+        'transType': 0, '__v': 0
+      }
+    },
+    {
+      '$sort': { createdAt: -1 }
+    }
+  ])
+  const logs = await TransactionLog.aggregatePaginate(aggregate, options)
   return {
     status: HttpStatusCode.OK,
     transactionLogs: logs
   }
 })
+
+export const getTransactionLogById = async function (logInfo) {
+  const log = await TransactionLog.aggregate([
+    {
+      '$match': {
+        '_id': mongoose.Types.ObjectId(logInfo.logId),
+        '$or': [{ 'from.UID': logInfo.userId }, { 'to.UID': logInfo.userId }]
+      }
+    },
+    {
+      '$lookup': {
+        from: 'services',
+        localField: 'transType',
+        foreignField: '_id',
+        as: 'transType'
+      }
+    },
+    {
+      '$unwind': '$transType'
+    },
+    {
+      '$project': {
+        'transType': { '_id': 0, '__v': 0, 'coefficient': 0 },
+        '__v': 0
+      }
+    }
+  ])
+  return {
+    status: HttpStatusCode.OK,
+    transactionLog: log[0]
+  }
+}

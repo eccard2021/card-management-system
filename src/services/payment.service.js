@@ -42,31 +42,31 @@ const checkMaxPayInDay = async function (card, cardType, amount, currency) {
   return true
 }
 
-const checkCreditLimitInMonth = async function (card, cardType, amount, currency) {
-  const today = new Date()
-  const amountParsed = Number(amount)
-  let exCurrencyFee = 0
-  if (currency != 'VND')
-    exCurrencyFee = roundNumber(amountParsed * card.exCurrency, 2)
-  let aggregate = await TransactionLog.aggregate([
-    { '$match': { 'from.number': card.cardNumber } },
-    {
-      '$group': {
-        _id: {
-          month: { $month: '$createdAt' },
-          year: { $year: '$createdAt' }
-        },
-        amountInMonth: { $sum: '$toCurrency.transactionAmount' }
-      }
-    },
-    { '$match': { '_id.month': today.getUTCMonth() + 1, '_id.year': today.getUTCFullYear() } }
-  ])
-  if (aggregate.length === 0 || !aggregate[0].amountInMonth)
-    return true
-  if (aggregate[0].amountInMonth + amountParsed + exCurrencyFee > cardType.creditLine)
-    return false
-  return true
-}
+// const checkCreditLimitInMonth = async function (card, cardType, amount, currency) {
+//   const today = new Date()
+//   const amountParsed = Number(amount)
+//   let exCurrencyFee = 0
+//   if (currency != 'VND')
+//     exCurrencyFee = roundNumber(amountParsed * card.exCurrency, 2)
+//   let aggregate = await TransactionLog.aggregate([
+//     { '$match': { 'from.number': card.cardNumber } },
+//     {
+//       '$group': {
+//         _id: {
+//           month: { $month: '$createdAt' },
+//           year: { $year: '$createdAt' }
+//         },
+//         amountInMonth: { $sum: '$toCurrency.transactionAmount' }
+//       }
+//     },
+//     { '$match': { '_id.month': today.getUTCMonth() + 1, '_id.year': today.getUTCFullYear() } }
+//   ])
+//   if (aggregate.length === 0 || !aggregate[0].amountInMonth)
+//     return true
+//   if (aggregate[0].amountInMonth + amountParsed + exCurrencyFee > cardType.creditLine)
+//     return false
+//   return true
+// }
 
 export const domesticPaymentProcess = async function (paymentInfo) {
   const gateway = await PaymentGate.findOne({ apiKey: paymentInfo.apiKey })
@@ -104,7 +104,7 @@ export const domesticPaymentProcess = async function (paymentInfo) {
   const pay = {
     customerId: card.accOwner,
     merchantId: gateway.gateOwner,
-    cardNumber: card.cardNumber,
+    card: card,
     cardType: cardType,
     amount: paymentInfo.amount,
     currency: 'VND'
@@ -126,15 +126,15 @@ const payDebitProcess = async function (pay) {
     }
     //customer process
     let service = await Service.findOne({ service_name: 'THANH TOAN ONLINE' }).exec()
-    service.fee_rate = pay.cardType.exCurrency
+    service.fee_rate = pay.cardType.exCurrency || 0
     let paymentLogCustomer = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
-    await customer.payment(paymentLogCustomer, opts)
+    await customer.payment(paymentLogCustomer, pay.card, opts)
     await paymentLogCustomer.save(opts)
     //merchant process
     let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
     let paymentLogMerchant = await TransactionLog.create(await TransactionLogService.createLogPaymentMerchant(merchant, pay, serviceMerchant))
     await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant, opts)
-    await paymentLogMerchant.save(opts)
+    await paymentLogMerchant.save()
     //end
     await session.commitTransaction()
     return {
@@ -148,7 +148,7 @@ const payDebitProcess = async function (pay) {
     }
   } catch (error) {
     await session.abortTransaction()
-    console.log(error)
+    console.log(error.stack)
     return { status: HttpStatusCode.INTERNAL_SERVER, message: 'Đã có lỗi xảy ra trong khi giao dịch.' }
   } finally {
     session.endSession()
@@ -205,7 +205,7 @@ export const internationalPaymentProcess = async function (paymentInfo) {
   const pay = {
     customerId: card.accOwner,
     merchantId: gateway.gateOwner,
-    cardNumber: card.cardNumber,
+    card: card,
     cardType: cardType,
     amount: paymentInfo.amount,
     currency: paymentInfo.currency
@@ -219,10 +219,74 @@ export const internationalPaymentProcess = async function (paymentInfo) {
     }
     return payDebitProcess(pay)
   } else {
-    if (!(await checkCreditLimitInMonth(card, cardType, paymentInfo.amount, paymentInfo.currency)))
-      return {
-        status: HttpStatusCode.OK,
-        message: 'Credit limit exceeded'
-      }
+    // if (!(await checkCreditLimitInMonth(card, cardType, paymentInfo.amount, paymentInfo.currency)))
+    //   return {
+    //     status: HttpStatusCode.OK,
+    //     message: 'Credit limit exceeded'
+    //   }
+    return payCreditProcess(pay)
   }
+}
+
+const payCreditProcess = async function (pay) {
+  const session = await startSession()
+  await session.startTransaction()
+  try {
+    const opts = { session, returnOriginal: false }
+    let customer = await User.findById(pay.customerId)
+    let merchant = await User.findById(pay.merchantId)
+    let checkLimit = await checkLimitCredit(pay.card, 'THANH TOAN ONLINE', pay.amount, pay.currency, pay.cardType)
+    if (!checkLimit) {
+      await session.abortTransaction()
+      return { status: HttpStatusCode.BAD_REQUEST, message: 'Đã vượt hạn mức cho phép' }
+    }
+    //customer process
+    let service = await Service.findOne({ service_name: 'THANH TOAN ONLINE' }).exec()
+    service.fee_rate = pay.cardType.exCurrency || 0
+    let paymentLogCustomer = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
+    await customer.paymentCredit(paymentLogCustomer, pay.card, opts)
+    await paymentLogCustomer.save(opts)
+    //merchant process
+    let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
+    let paymentLogMerchant = await TransactionLog.create(await TransactionLogService.createLogPaymentMerchant(merchant, pay, serviceMerchant))
+    await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant, opts)
+    await paymentLogMerchant.save()
+    //end
+    await session.commitTransaction()
+    return {
+      status: HttpStatusCode.OK,
+      paymentInfo: {
+        transactionLogId: paymentLogCustomer._id,
+        customerName: customer.name,
+        status: 'COMPLETED',
+        createAt: paymentLogCustomer.createdAt
+      }
+    }
+  } catch (error) {
+    await session.abortTransaction()
+    console.log(error.stack)
+    return { status: HttpStatusCode.INTERNAL_SERVER, message: 'Đã có lỗi xảy ra trong khi giao dịch.' }
+  } finally {
+    session.endSession()
+  }
+}
+
+const checkLimitCredit = async function (card, serviceName, amount, fromCurrency, cardType) {
+  const service = await Service.findOne({ service_name: serviceName }).exec()
+  service.fee_rate = cardType.exCurrency || 0
+  let fee = {
+    fromCurrency: {
+      transactionAmount: amount,
+      currency_code: fromCurrency
+    },
+    toCurrency: {
+      transactionAmount: await convertCurrency(fromCurrency, 'VND', amount),
+      currency_code: 'VND'
+    }
+  }
+  await service.calculateServiceFee(fee)
+  if (fee.toCurrency.transactionAmount + fee.toCurrency.transactionFee + card.currentUsed > cardType.creditLine) {
+    return false
+  }
+  return true
 }

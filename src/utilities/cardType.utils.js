@@ -5,3 +5,12 @@ export const standardizeCardNameForUrl = (cardName) => {
     .replace(/ /g, '-')
     .toLowerCase()
 }
+
+const characters = '0123456789'
+export const randomPIN = function () {
+  let PIN = ''
+  for (let i = 0; i < 6; i++) {
+    PIN += characters.charAt(Math.floor(Math.random() * 10))
+  }
+  return PIN
+}

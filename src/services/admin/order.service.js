@@ -1,10 +1,17 @@
 import { HttpStatusCode } from '../../utilities/constant'
 import OrderForm from '../../models/orderForm.model'
+import User from '../../models/user.model'
 import * as CardService from './card.service'
 import * as PaymentGatewayService from './paymentGateway.service'
 import mongoose from 'mongoose'
-import User from '../../models/user.model'
 import sendMail from '../../utilities/mailer'
+import { IntCredits, IntDebits, DomDebits } from '../../models/cardTypes.model'
+
+const combination = {
+  IntCredits: IntCredits,
+  IntDebits: IntDebits,
+  DomDebits: DomDebits
+}
 
 export const getOrderPagination = async function (info) {
   const options = {
@@ -83,11 +90,13 @@ const cardInit = async function (approveInfo, order) {
       status: HttpStatusCode.OK,
       message: 'Người dùng đã sở hữu 1 trong những loại thẻ này'
     }
+  let user = await User.findById(order.orderOwner)
+  const cardType = await combination[order.cardType].findById(order.cardTypeId)
+  ////
   const card = await CardService.registCardForUser(order)
   order.bankCmt = approveInfo.bankCmt
   order.status = 'approve'
   order.save()
-  const user = await User.findById(order.orderOwner)
   sendMail(user.email, 'Thông tin thẻ', JSON.stringify(card))
   return {
     status: HttpStatusCode.OK,

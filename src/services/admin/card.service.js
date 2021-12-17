@@ -1,4 +1,5 @@
 import CardList from '../../models/cardList.model'
+import { randomPIN } from '../../utilities/cardType.utils'
 
 export const checkUserHaveCardType = async function (order) {
   const card = await CardList.findOne({ accOwner: order.orderOwner, cardType: order.cardType })
@@ -15,7 +16,7 @@ export const checkUserOwnCard = async function (order) {
 }
 
 export const registCardForUser = async function (order) {
-  let PIN = '111111'
+  let PIN = randomPIN()
   const card = await CardList.findOne({ accOwner: null, cardType: order.cardType, cardTypeId: order.cardTypeId })
   card.accOwner = order.orderOwner
   card.isActive = true
