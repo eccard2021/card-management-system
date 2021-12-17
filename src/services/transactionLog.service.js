@@ -122,23 +122,53 @@ export const createLogPayment = async function (remitter, receiver, paymentInfo,
       UID: new mongoose.Types.ObjectId(receiver._id)
     },
     fromCurrency: {
-      transactionAmount: Number(paymentInfo.amount),
-      currency_code: paymentInfo.currency
-    },
-    toCurrency: {
       transactionAmount: 0,
       currency_code: 'VND'
     },
+    toCurrency: {
+      transactionAmount: Number(paymentInfo.amount),
+      currency_code: paymentInfo.currency
+    },
     exchangeRate: await getRate(paymentInfo.currency, 'VND'),
-    description: 'Thanh toán Online'
+    description: 'Thanh toán online'
   }
   transactionLog.transType = service._id
-  transactionLog.toCurrency.transactionAmount = await convertCurrency(
-    transactionLog.fromCurrency.currency_code,
+  transactionLog.fromCurrency.transactionAmount = await convertCurrency(
     transactionLog.toCurrency.currency_code,
-    transactionLog.fromCurrency.transactionAmount
+    transactionLog.fromCurrency.currency_code,
+    transactionLog.toCurrency.transactionAmount
   )
   await service.calculateServiceFee(transactionLog)
+  return transactionLog
+}
+
+export const createLogPaymentMerchant = async function (remitter, paymentInfo, service) {
+  let transactionLog = {
+    from: {
+      bank: 'LTSBANK',
+      number: remitter.accNumber,
+      remitterName: remitter.name,
+      UID: new mongoose.Types.ObjectId(remitter._id)
+    },
+    to: {
+      bank: 'LTSBANK',
+      number: '000000',
+      receiverName: 'LTSBANK'
+    },
+    fromCurrency: {
+      transactionAmount: Number(paymentInfo.amount) * service.fee_rate,
+      transactionFee: 0,
+      currency_code: 'VND'
+    },
+    toCurrency: {
+      transactionAmount: Number(paymentInfo.amount) * service.fee_rate,
+      transactionFee: 0,
+      currency_code: 'VND'
+    },
+    exchangeRate: await getRate(paymentInfo.currency, 'VND'),
+    description: 'Phí thanh toán online của người bán'
+  }
+  transactionLog.transType = service._id
   return transactionLog
 }
 

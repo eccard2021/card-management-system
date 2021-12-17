@@ -1,11 +1,10 @@
 import CardList from '../models/cardList.model'
 import User from '../models/user.model'
 import PaymentGate from '../models/paymentGate.model'
-import { checkBalanceBeforeTransaction } from './user.service'
 import { HttpStatusCode } from '../utilities/constant'
 import { IntCredits, IntDebits, DomDebits } from '../models/cardTypes.model'
 import { startSession } from 'mongoose'
-import { roundNumber } from '../utilities/currency'
+import { roundNumber, convertCurrency } from '../utilities/currency'
 import Service from '../models/service.model'
 import TransactionLog from '../models/transactionModel'
 import * as TransactionLogService from './transactionLog.service'
@@ -16,9 +15,8 @@ const combination = {
   DomDebits: DomDebits
 }
 
-const checkMaxPayInDay = async function (card, amount, currency) {
+const checkMaxPayInDay = async function (card, cardType, amount, currency) {
   const today = new Date()
-  const cardType = await combination[card.cardType].findById(card.cardTypeId)
   const amountParsed = Number(amount)
   let exCurrencyFee = 0
   let aggregate = await TransactionLog.aggregate([
@@ -44,9 +42,8 @@ const checkMaxPayInDay = async function (card, amount, currency) {
   return true
 }
 
-const checkCreditLimitInMonth = async function (card, amount, currency) {
+const checkCreditLimitInMonth = async function (card, cardType, amount, currency) {
   const today = new Date()
-  const cardType = await combination[card.cardType].findById(card.cardTypeId)
   const amountParsed = Number(amount)
   let exCurrencyFee = 0
   if (currency != 'VND')
@@ -80,6 +77,7 @@ export const domesticPaymentProcess = async function (paymentInfo) {
     }
   }
   const card = await CardList.findOne({ cardNumber: paymentInfo.cardNumber })
+  const cardType = await combination[card.cardType].findById(card.cardTypeId)
   if (!card || card.cardType !== 'DomDebits')
     return {
       status: HttpStatusCode.NOT_FOUND,
@@ -97,7 +95,7 @@ export const domesticPaymentProcess = async function (paymentInfo) {
       message: 'Thẻ đã bị khoá'
     }
   }
-  if (!(await checkMaxPayInDay(card, paymentInfo.amount, paymentInfo.currency))) {
+  if (!(await checkMaxPayInDay(card, cardType, paymentInfo.amount, paymentInfo.currency))) {
     return {
       status: HttpStatusCode.OK,
       message: 'Thẻ đã vượt quá hạn mức thanh toán trong ngày'
@@ -107,37 +105,45 @@ export const domesticPaymentProcess = async function (paymentInfo) {
     customerId: card.accOwner,
     merchantId: gateway.gateOwner,
     cardNumber: card.cardNumber,
+    cardType: cardType,
     amount: paymentInfo.amount,
     currency: 'VND'
   }
-  return await payProcess(pay)
+  return await payDebitProcess(pay)
 }
 
-const payProcess = async function (pay) {
+const payDebitProcess = async function (pay) {
   const session = await startSession()
   await session.startTransaction()
   try {
     const opts = { session, returnOriginal: false }
     let customer = await User.findById(pay.customerId)
     let merchant = await User.findById(pay.merchantId)
-    let checkBalance = await checkBalanceBeforeTransaction(customer, 'THANH TOAN ONLINE', pay.amount, pay.currency)
+    let checkBalance = await checkBalanceDebit(customer, 'THANH TOAN ONLINE', pay.amount, pay.currency, pay.cardType.exCurrency)
     if (!checkBalance) {
       await session.abortTransaction()
       return { status: HttpStatusCode.BAD_REQUEST, message: 'Số dư không đủ để thực hiện giao dịch.' }
     }
-    const service = await Service.findOne({ service_name: 'THANH TOAN ONLINE' }).exec()
-    let transactionLog = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
-    await customer.updateBalance(transactionLog, service, opts)
-    await merchant.receiveMoney(transactionLog, opts)
-    await transactionLog.save(opts)
+    //customer process
+    let service = await Service.findOne({ service_name: 'THANH TOAN ONLINE' }).exec()
+    service.fee_rate = pay.cardType.exCurrency
+    let paymentLogCustomer = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
+    await customer.payment(paymentLogCustomer, opts)
+    await paymentLogCustomer.save(opts)
+    //merchant process
+    let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
+    let paymentLogMerchant = await TransactionLog.create(await TransactionLogService.createLogPaymentMerchant(merchant, pay, serviceMerchant))
+    await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant, opts)
+    await paymentLogMerchant.save(opts)
+    //end
     await session.commitTransaction()
     return {
       status: HttpStatusCode.OK,
       paymentInfo: {
-        transactionLogId: transactionLog._id,
+        transactionLogId: paymentLogCustomer._id,
         customerName: customer.name,
         status: 'COMPLETED',
-        createAt: transactionLog.createdAt
+        createAt: paymentLogCustomer.createdAt
       }
     }
   } catch (error) {
@@ -149,15 +155,36 @@ const payProcess = async function (pay) {
   }
 }
 
+const checkBalanceDebit = async function (user, serviceName, amount, fromCurrency, exCurrencyRate = 0) {
+  const service = await Service.findOne({ service_name: serviceName }).exec()
+  service.fee_rate = exCurrencyRate
+  let fee = {
+    fromCurrency: {
+      transactionAmount: amount,
+      currency_code: fromCurrency
+    },
+    toCurrency: {
+      transactionAmount: await convertCurrency(fromCurrency, 'VND', amount),
+      currency_code: 'VND'
+    }
+  }
+  await service.calculateServiceFee(fee)
+  if (fee.toCurrency.transactionAmount > fee.toCurrency.transactionFee + user.balance) {
+    return false
+  }
+  return true
+}
+
 export const internationalPaymentProcess = async function (paymentInfo) {
   const gateway = await PaymentGate.findOne({ apiKey: paymentInfo.apiKey })
-  if (!gateway) {
+  if (!gateway || !gateway.isGlobal) {
     return {
       status: HttpStatusCode.UNAUTHORIZED,
       message: 'No valid payment gateway found'
     }
   }
   const card = await CardList.findOne({ cardNumber: paymentInfo.cardNumber })
+  const cardType = await combination[card.cardType].findById(card.cardTypeId)
   if (!card || card.cardType === 'DomDebits')
     return {
       status: HttpStatusCode.NOT_FOUND,
@@ -175,15 +202,24 @@ export const internationalPaymentProcess = async function (paymentInfo) {
       message: 'Card is locked. Can not payment!'
     }
   }
+  const pay = {
+    customerId: card.accOwner,
+    merchantId: gateway.gateOwner,
+    cardNumber: card.cardNumber,
+    cardType: cardType,
+    amount: paymentInfo.amount,
+    currency: paymentInfo.currency
+  }
   if (card.cardType === 'IntDebits') {
-    if (!(await checkMaxPayInDay(card, paymentInfo.amount))) {
+    if (!(await checkMaxPayInDay(card, cardType, paymentInfo.amount, paymentInfo.currency))) {
       return {
         status: HttpStatusCode.OK,
         message: 'Payment limit exceeded for the day'
       }
     }
+    return payDebitProcess(pay)
   } else {
-    if (!(await checkCreditLimitInMonth(card, paymentInfo.amount)))
+    if (!(await checkCreditLimitInMonth(card, cardType, paymentInfo.amount, paymentInfo.currency)))
       return {
         status: HttpStatusCode.OK,
         message: 'Credit limit exceeded'

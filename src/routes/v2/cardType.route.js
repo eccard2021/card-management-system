@@ -7,9 +7,9 @@ const router = express.Router()
 router.route('/:cardType')
   .get(CardTypeController.getListCardsByType)
   .post(CardTypeController.createCardType)
+  .put(CardTypeController.updateCardType)
 router.route('/:cardType/:urlPath')
   .get(CardTypeController.getCardByTypeAndUrlPath)
-  .put(CardTypeController.updateCardType)
 //.delete()
 
 export const cardTypeRoutes = router

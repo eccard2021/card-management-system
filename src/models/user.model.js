@@ -143,13 +143,36 @@ UserSchema.methods.receiveMoney = async function (transactionLog, opts) {
   }
 }
 
-UserSchema.methods.payment = async function (transactionLog, opts) {
+UserSchema.methods.payment = async function (paymentLogCustomer, opts) {
   try {
-    this.balance = roundNumber(this.balance - transactionLog.toCurrency.transactionAmount, 2)
+    this.balance = roundNumber(this.balance - paymentLogCustomer.fromCurrency.transactionAmount - paymentLogCustomer.fromCurrency.transactionFee, 2)
+    this.balanceFluctuations.push({
+      transactionLog: paymentLogCustomer._id,
+      amount: paymentLogCustomer.toCurrency.transactionAmount,
+      endingBalance: this.balance,
+      description: paymentLogCustomer.description
+    })
+    await this.save(opts)
   } catch (error) {
     console.log(error)
     throw error
   }
+}
+
+UserSchema.methods.merchantUpdate = async function (paymentLogCustomer, paymentLogMerchant, opts) {
+  // try {
+  //   this.balance = roundNumber(this.balance - transactionLog.fromCurrency.transactionAmount - transactionLog.fromCurrency.transactionFee, 2)
+  //   this.balanceFluctuations.push({
+  //     transactionLog: transactionLog._id,
+  //     amount: transactionLog.toCurrency.transactionAmount,
+  //     endingBalance: this.balance,
+  //     description: transactionLog.description
+  //   })
+  //   await this.save(opts)
+  // } catch (error) {
+  //   console.log(error)
+  //   throw error
+  // }
 }
 
 UserSchema.methods.generateAuthToken = async function () {

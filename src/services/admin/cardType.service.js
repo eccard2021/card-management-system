@@ -61,7 +61,8 @@ export const updateCardType = asyncHandler(async function (cardInfo) {
       message: 'Không tìm thấy loại thẻ tương ứng'
     }
   }
-  let oldCard = await combination[cardType].model.findById(cardType._id)
+  console.log(info)
+  let oldCard = await combination[cardType].model.findById(info._id)
   if (!oldCard) {
     return {
       status: HttpStatusCode.NOT_FOUND,
