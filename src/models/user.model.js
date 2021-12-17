@@ -143,6 +143,15 @@ UserSchema.methods.receiveMoney = async function (transactionLog, opts) {
   }
 }
 
+UserSchema.methods.payment = async function (transactionLog, opts) {
+  try {
+    this.balance = roundNumber(this.balance - transactionLog.toCurrency.transactionAmount, 2)
+  } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
 UserSchema.methods.generateAuthToken = async function () {
   const user = this
   const token = Jwt.sign({ _id: user._id }, env.JWT_SECRET)

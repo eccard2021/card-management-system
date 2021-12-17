@@ -66,7 +66,7 @@ export const getOrderById = async function (orderId) {
       }
     }
   ])
-  if (!order || order.length === 0)
+  if (order.length === 0)
     return {
       status: HttpStatusCode.NOT_FOUND,
       message: 'Không tìm thấy yêu cầu'

@@ -60,6 +60,10 @@ CardListSchema.methods.matchPIN = async function (enteredPIN) {
   return await bcrypt.compare(enteredPIN, this.PIN)
 }
 
+CardListSchema.methods.matchCVV = async function (enteredCVV) {
+  return enteredCVV === this.CVV
+}
+
 CardListSchema.methods.matchExpiredDate = async function (enteredExpiredDate) {
   const thisdate = new Date(this.expiredDate)
   const enteredExDate = enteredExpiredDate.split('/')

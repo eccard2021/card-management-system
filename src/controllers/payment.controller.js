@@ -25,6 +25,7 @@ export const internationalPayment = asyncHandler(async function (req, res) {
     cardNumber: req.body.cardNumber,
     expiredDate: req.body.expiredDate,
     CVV: req.body.PIN,
-    amount: req.body.amount
+    amount: req.body.amount,
+    currency: req.body.currency
   }
 })

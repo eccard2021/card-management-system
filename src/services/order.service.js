@@ -36,7 +36,7 @@ export const cardCancel = async function (orderInfo) {
 }
 
 export const paymentGatewayInit = async function (orderInfo) {
-  if (!orderInfo.globalGate)
+  if (orderInfo.globalGate == null)
     return { status: HttpStatusCode.NOT_FOUND, message: 'Thông tin không hợp lệ' }
   let order = await OrderForm.create(orderInfo)
   await order.save()
