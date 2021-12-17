@@ -56,6 +56,16 @@ const CardListSchema = mongoose.Schema({
   timestamps: true
 })
 
+CardListSchema.methods.matchPIN = async function (enteredPIN) {
+  return await bcrypt.compare(enteredPIN, this.PIN)
+}
+
+CardListSchema.methods.matchExpiredDate = async function (enteredExpiredDate) {
+  const thisdate = new Date(this.expiredDate)
+  const enteredExDate = enteredExpiredDate.split('/')
+  return (thisdate.getMonth() + 1 == Number(enteredExDate[0])) && thisdate.getFullYear() == Number(enteredExDate[1])
+}
+
 //--------------------------------------HOOKS--------------------------------------------
 
 CardListSchema.pre('insertMany', async function (next, docs) {

@@ -28,7 +28,8 @@ export const getOrderPagination = async function (info) {
         '_id': 1, 'orderType': 1, 'status': 1, 'accNumber': '$orderOwner.accNumber',
         'cusName': '$orderOwner.name', 'createdAt': 1
       }
-    }
+    },
+    { '$sort': { 'createdAt': -1 } }
   ])
   const listOrder = await OrderForm.aggregatePaginate(aggregate, options)
   return {

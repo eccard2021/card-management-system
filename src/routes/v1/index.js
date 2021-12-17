@@ -4,6 +4,7 @@ import { userRoutes } from './user.route'
 import { cardTypeRoutes } from './cardType.route'
 import { transactionLogRoutes } from './transactionLog.route'
 import { orderRoutes } from './order.route'
+import { paymentRoutes } from './payment.route'
 
 const router = express.Router()
 
@@ -21,4 +22,6 @@ router.use('/card-type', cardTypeRoutes)
 router.use('/transaction-logs', transactionLogRoutes)
 /**Order API */
 router.use('/order', orderRoutes)
+/**Payment API */
+router.use('/payment', paymentRoutes)
 export const apiV1 = router

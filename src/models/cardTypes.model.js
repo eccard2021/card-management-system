@@ -150,6 +150,10 @@ const DomDebitsSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  maxPay: { //so tien duoc su dung toi da trong ngay
+    type: Number,
+    required: true
+  },
   issueFee: {
     type: Number,
     required: true

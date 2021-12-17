@@ -186,6 +186,7 @@ export const domDebits = [
     image: 'https://firebasestorage.googleapis.com/v0/b/cardec-30bbb.appspot.com/o/CardTypes%2FdomDebits%2Fthe-lts-domestic-Debit-Napas-standard.png?alt=media',
     cardRank: 'Standard',
     description: 'Thẻ ghi nợ nội địa Napas Standard, cho thép thanh toán trực tuyến trên các website có biểu tượng của LTS Bank trong nội địa Quốc Gia',
+    maxPay: 100000000,
     issueFee: 0,
     yearlyFee: 45000
   }
@@ -241,7 +242,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588c',
+    cardTypeId: '61b99aafb3e43e32b664f62f',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -254,7 +255,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588c',
+    cardTypeId: '61b99aafb3e43e32b664f62f',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -267,7 +268,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588d',
+    cardTypeId: '61b99aafb3e43e32b664f630',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -280,7 +281,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588d',
+    cardTypeId: '61b99aafb3e43e32b664f630',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -294,7 +295,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588e',
+    cardTypeId: '61b99aafb3e43e32b664f631',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -307,7 +308,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588e',
+    cardTypeId: '61b99aafb3e43e32b664f631',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -320,7 +321,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588f',
+    cardTypeId: '61b99aafb3e43e32b664f632',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -333,7 +334,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d588f',
+    cardTypeId: '61b99aafb3e43e32b664f632',
     cardType: 'IntCredits',
     currentUsed: 0
   },
@@ -348,7 +349,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5893',
+    cardTypeId: '61b99aafb3e43e32b664f636',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -361,7 +362,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5893',
+    cardTypeId: '61b99aafb3e43e32b664f636',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -374,7 +375,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5894',
+    cardTypeId: '61b99aafb3e43e32b664f637',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -387,7 +388,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5894',
+    cardTypeId: '61b99aafb3e43e32b664f637',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -401,7 +402,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5891',
+    cardTypeId: '61b99aafb3e43e32b664f634',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -414,7 +415,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5891',
+    cardTypeId: '61b99aafb3e43e32b664f634',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -427,7 +428,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5892',
+    cardTypeId: '61b99aafb3e43e32b664f635',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -440,7 +441,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5892',
+    cardTypeId: '61b99aafb3e43e32b664f635',
     cardType: 'IntDebits',
     currentUsed: 0
   },
@@ -456,7 +457,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5896',
+    cardTypeId: '61b99aafb3e43e32b664f639',
     cardType: 'DomDebits',
     currentUsed: 0
   },
@@ -469,7 +470,7 @@ export const cardList = [
     accOwner: null,
     validDate: null,
     expiredDate: null,
-    cardTypeId: '61a88590e5630c69fe5d5896',
+    cardTypeId: '61b99aafb3e43e32b664f639',
     cardType: 'DomDebits',
     currentUsed: 0
   }

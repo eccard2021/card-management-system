@@ -35,7 +35,6 @@ ServiceSchema.methods.calculateServiceFee = async function (transactionLog) {
   //transactionLog.transactionFee = this.fixedfee + Math.abs(transactionLog.transactionAmount) * this.fee_rate
   if (transactionLog.toCurrency.currency_code === 'VND') {
     transactionLog.toCurrency.transactionFee = roundNumber((this.fixedfee + Math.abs(transactionLog.toCurrency.transactionAmount) * this.fee_rate), 2)
-
     transactionLog.fromCurrency.transactionFee = await convertCurrency(
       transactionLog.toCurrency.currency_code,
       transactionLog.fromCurrency.currency_code,

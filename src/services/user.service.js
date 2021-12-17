@@ -312,7 +312,7 @@ export const transferMoneyProcess = asyncHandler(async function (transferInfo) {
     let transactionLog = await TransactionLog.create(await TransactionLogService.createLogTransfer(remitter, receiver, transferInfo, service))
     await remitter.updateBalance(transactionLog, service, opts)
     await receiver.receiveMoney(transactionLog, opts)
-    console.log(transferInfo)
+    await transactionLog.save(opts)
     await Token.deleteOne({ userId: transferInfo.remitterId, token: transferInfo.token, tokenType: 'transfer' }, opts)
     await session.commitTransaction()
     session.endSession()
@@ -337,7 +337,6 @@ export const checkBalanceBeforeTransaction = async function (user, serviceName, 
     }
   }
   await service.calculateServiceFee(fee)
-  console.log(fee)
   if (fee.toCurrency.transactionAmount > fee.toCurrency.transactionFee + user.balance) {
     return false
   }
