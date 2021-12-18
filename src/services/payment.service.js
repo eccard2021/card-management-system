@@ -242,7 +242,6 @@ const payCreditProcess = async function (pay) {
 
 const checkLimitCredit = async function (card, serviceName, amount, fromCurrency, cardType) {
   const service = await Service.findOne({ service_name: serviceName }).exec()
-  const today = new Date()
   service.fee_rate = cardType.exCurrency || 0
   let fee = {
     fromCurrency: {
@@ -255,22 +254,29 @@ const checkLimitCredit = async function (card, serviceName, amount, fromCurrency
     }
   }
   await service.calculateServiceFee(fee)
+  const today = new Date()
+  let lastMonth = new Date(today.getUTCFullYear(), today.getUTCMonth() - 1, cardType.statmentDay)
+  let currentMonth = new Date(today.getUTCFullYear(), today.getUTCMonth(), cardType.statmentDay)
   const sumCreditInMonth = await TransactionLog.aggregate([
-    { '$match': { 'from.number': card.cardNumber } },
     {
-      '$group': {
-        _id: {
-          month: { $month: '$createdAt' },
-          year: { $year: '$createdAt' }
-        },
-        amountInMonth: { $sum: '$toCurrency.transactionAmount' }
+      '$match': {
+        'from.number': card.cardNumber,
+        'createdAt': {
+          '$gt': lastMonth,
+          '$lte': currentMonth
+        }
       }
     },
-    { '$match': { '_id.month': today.getUTCMonth() + 1, '_id.year': today.getUTCFullYear() } }
+    {
+      '$group': {
+        _id: null,
+        amountInMonth: { $sum: '$fromCurrency.transactionAmount' }
+      }
+    }
   ])
   let usedInMonth = 0
   if (sumCreditInMonth.length != 0)
-    usedInMonth = sumCreditInMonth.amountInMonth
+    usedInMonth = sumCreditInMonth[0].amountInMonth
   if (fee.toCurrency.transactionAmount + fee.toCurrency.transactionFee + usedInMonth > cardType.creditLine) {
     return false
   }

@@ -53,7 +53,8 @@ const CardListSchema = mongoose.Schema({
     default: 0
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  strict: false
 })
 
 CardListSchema.methods.matchPIN = async function (enteredPIN) {

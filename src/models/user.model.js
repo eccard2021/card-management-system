@@ -178,7 +178,7 @@ UserSchema.methods.paymentCredit = async function (paymentLogCustomer, opts) {
 
 UserSchema.methods.merchantUpdate = async function (paymentLogCustomer, paymentLogMerchant, opts) {
   try {
-    this.balance = roundNumber(this.balance + paymentLogCustomer.toCurrency.transactionAmount - paymentLogMerchant.fromCurrency.transactionAmount, 2)
+    this.balance = roundNumber(this.balance + paymentLogCustomer.fromCurrency.transactionAmount - paymentLogMerchant.fromCurrency.transactionAmount, 2)
     this.balanceFluctuations.push({
       transactionLog: paymentLogMerchant._id,
       amount: paymentLogMerchant.toCurrency.transactionAmount,

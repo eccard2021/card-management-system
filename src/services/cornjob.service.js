@@ -9,8 +9,9 @@ import { IntCredits } from '../models/cardTypes.model'
 
 export const scheduler = function () {
   // 00:00:00 AM ngày 20 hàng tháng tính phí duy trì tài khoản
-  //corn.schedule('0 0 0 20 * *', processAccountMaintenanceFee)
-  //corn.schedule('0 0 0 * * *', processInterestCredit)
+  corn.schedule('0 0 0 20 * *', processAccountMaintenanceFee)
+  corn.schedule('0 0 0 * * *', processAccountingCredit)
+  corn.schedule('0 0 0 * * *', processInterestCredit)
 }
 
 const processAccountMaintenanceFee = async function () {
@@ -36,17 +37,40 @@ const processAccountMaintenanceFee = async function () {
   })
 }
 
-const processInterestCredit = async function () {
+const processAccountingCredit = async function () {
   const today = new Date()
   const cardTypes = await IntCredits.find({ statmentDay: today.getUTCDate() })
   cardTypes.forEach(async (cardType) => {
-    let cardList = await CardList.find({ cardTypeId: cardType._id })
+    let lastMonth = new Date(today.getUTCFullYear(), today.getUTCMonth() - 1, cardType.statmentDay)
+    let currentMonth = new Date(today.getUTCFullYear(), today.getUTCMonth(), cardType.statmentDay)
+    let cardList = await CardList.find({ cardTypeId: cardType._id, accOwner: { '$ne': null } })
     cardList.forEach(async (card) => {
+      const sumCreditInMonth = await TransactionLog.aggregate([
+        {
+          '$match': {
+            'from.number': card.cardNumber,
+            'createdAt': {
+              '$gt': lastMonth,
+              '$lte': currentMonth
+            }
+          }
+        },
+        {
+          '$group': {
+            _id: null,
+            amountInMonth: { $sum: '$fromCurrency.transactionAmount' }
+          }
+        }
+      ])
+      let usedInMonth = 0
+      if (sumCreditInMonth.length != 0)
+        usedInMonth = sumCreditInMonth[0].amountInMonth
       const session = await startSession()
       await session.startTransaction()
       try {
         const opts = { session, returnOriginal: false }
-        card.currentUsed += card.currentUsed * cardType.interestRate
+        card.debt += card.currentUsed
+        card.currentUsed = usedInMonth
         card.save(opts)
       } catch (error) {
         await session.abortTransaction()
@@ -55,5 +79,16 @@ const processInterestCredit = async function () {
         session.endSession()
       }
     })
+  })
+}
+
+const processInterestCredit = async function () {
+  const today = new Date()
+  const cardTypes = await IntCredits.find({
+    statmentDay: {
+      $dayOfMonth: {
+        $subtract: [today, { $multiply: ['$payWithin', 86400 * 1000] }]
+      }
+    }
   })
 }

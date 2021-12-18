@@ -17,7 +17,15 @@ export const checkUserOwnCard = async function (order) {
 
 export const registCardForUser = async function (order) {
   let PIN = randomPIN()
-  const card = await CardList.findOne({ accOwner: null, cardType: order.cardType, cardTypeId: order.cardTypeId })
+  let card = null
+  if (order.cardType === 'IntCredits')
+    card = await CardList.findOneAndUpdate(
+      { accOwner: null, cardType: order.cardType, cardTypeId: order.cardTypeId }
+    ).set('debt', 0, Number)
+  else
+    card = await CardList.findOne(
+      { accOwner: null, cardType: order.cardType, cardTypeId: order.cardTypeId }
+    )
   card.accOwner = order.orderOwner
   card.isActive = true
   card.validDate = new Date()
