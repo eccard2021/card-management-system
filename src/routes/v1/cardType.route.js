@@ -1,5 +1,5 @@
 import express from 'express'
-import { getCardByTypeAndUrlPath, getOneCardType, getAllCardTypes } from '@src/controllers/card.controller'
+import { getCardByTypeAndUrlPath, getOneCardType, getAllCardTypes } from '../../controllers/cardType.controller'
 
 const router = express.Router()
 

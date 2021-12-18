@@ -5,6 +5,8 @@ import { cardTypeRoutes } from './cardType.route'
 import { transactionLogRoutes } from './transactionLog.route'
 import { orderRoutes } from './order.route'
 import { paymentRoutes } from './payment.route'
+import { cardRoutes } from './card.route'
+import { paymentGatewayRoutes } from './paymentGateway.route'
 
 const router = express.Router()
 
@@ -24,4 +26,9 @@ router.use('/transaction-logs', transactionLogRoutes)
 router.use('/order', orderRoutes)
 /**Payment API */
 router.use('/payment', paymentRoutes)
+/**Card API */
+router.use('/cards', cardRoutes)
+/**Payment Gateway API */
+router.use('/gateways', paymentGatewayRoutes)
+
 export const apiV1 = router
