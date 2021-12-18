@@ -10,3 +10,43 @@ export const getAllCardByUserID = async function (userId) {
     listCard: listCard
   }
 }
+
+export const deactiveCardById = async function (cardId) {
+  const card = await CardList.findById(cardId)
+  if (!card)
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Thẻ không tồn tại'
+    }
+  if (card.isActive === false)
+    return {
+      status: HttpStatusCode.OK,
+      message: 'Thẻ này đang bị khoá'
+    }
+  card.isActive = false
+  await card.save()
+  return {
+    status: HttpStatusCode.OK,
+    message: 'Khoá thẻ thành công'
+  }
+}
+
+export const activeCardById = async function (cardId) {
+  const card = await CardList.findById(cardId)
+  if (!card)
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Thẻ không tồn tại'
+    }
+  if (card.isActive === true)
+    return {
+      status: HttpStatusCode.OK,
+      message: 'Thẻ đang hoạt động'
+    }
+  card.isActive = false
+  await card.save()
+  return {
+    status: HttpStatusCode.OK,
+    message: 'Mở khoá thẻ thành công'
+  }
+}
