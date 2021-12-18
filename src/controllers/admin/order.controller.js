@@ -19,7 +19,7 @@ export const getOrderPagination = asyncHandler(async function (req, res) {
 })
 
 export const getOrderById = asyncHandler(async function (req, res) {
-  const orderId = req.body.orderId
+  const orderId = req.query.orderId
   try {
     const result = await OrderService.getOrderById(orderId)
     res.status(result.status).json(result.order)
