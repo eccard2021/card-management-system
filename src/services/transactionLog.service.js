@@ -87,8 +87,8 @@ export const createLogTransfer = async function (remitter, receiver, transferInf
       UID: new mongoose.Types.ObjectId(receiver._id)
     },
     fromCurrency: {
-      transactionAmount: 0,
-      currency_code: transferInfo.currency
+      transactionAmount: Number(transferInfo.amount),
+      currency_code: 'VND'
     },
     toCurrency: {
       transactionAmount: Number(transferInfo.amount),
@@ -98,11 +98,6 @@ export const createLogTransfer = async function (remitter, receiver, transferInf
     description: 'Chuyển khoản trong LTS Bank'
   }
   transactionLog.transType = service._id
-  transactionLog.fromCurrency.transactionAmount = await convertCurrency(
-    transactionLog.toCurrency.currency_code,
-    transactionLog.fromCurrency.currency_code,
-    transactionLog.toCurrency.transactionAmount
-  )
   await service.calculateServiceFee(transactionLog)
   return transactionLog
 }
