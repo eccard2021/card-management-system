@@ -7,6 +7,7 @@ import { apiV2 } from './routes/v2'
 import cors from 'cors'
 import { corsOptions } from './utilities/constant'
 import helmet from 'helmet'
+import { scheduler } from './services/cornjob.service'
 
 connectDB()
   .then(() => console.log('Connected succesfully to database server!'))
@@ -15,6 +16,8 @@ connectDB()
     console.error(error)
     process.exit(1)
   })
+
+scheduler()
 
 const bootServer = async () => {
   const app = express()
@@ -25,7 +28,6 @@ const bootServer = async () => {
   app.use('/v2', apiV2)
   app.use(notFound)
   app.use(errHandler)
-
   app.listen(process.env.PORT || env.APP_PORT, () => {
     console.log(`API Bank Management on port ${process.env.PORT || env.APP_PORT}`)
   })

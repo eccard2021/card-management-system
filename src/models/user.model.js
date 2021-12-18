@@ -161,9 +161,8 @@ UserSchema.methods.payment = async function (paymentLogCustomer, card, opts) {
   }
 }
 
-UserSchema.methods.paymentCredit = async function (paymentLogCustomer, card, opts) {
+UserSchema.methods.paymentCredit = async function (paymentLogCustomer, opts) {
   try {
-    card.currentUsed += roundNumber(paymentLogCustomer.fromCurrency.transactionAmount + paymentLogCustomer.fromCurrency.transactionFee, 2)
     this.balanceFluctuations.push({
       transactionLog: paymentLogCustomer._id,
       amount: paymentLogCustomer.toCurrency.transactionAmount,
@@ -171,7 +170,6 @@ UserSchema.methods.paymentCredit = async function (paymentLogCustomer, card, opt
       description: paymentLogCustomer.description
     })
     await this.save(opts)
-    await card.save(opts)
   } catch (error) {
     console.log(error)
     throw error
@@ -189,6 +187,31 @@ UserSchema.methods.merchantUpdate = async function (paymentLogCustomer, paymentL
     })
     await this.save(opts)
   } catch (error) {
+    console.log(error)
+    throw error
+  }
+}
+
+UserSchema.methods.accountMaintenanceFee = async function (transactionLog, opts) {
+  const user = this
+  try {
+    if (user.balance < transactionLog.fromCurrency.transactionAmount) {
+      user.balance = 0
+      transactionLog.fromCurrency.transactionAmount = 0
+      transactionLog.toCurrency.transactionAmount = 0
+    }
+    else {
+      user.balance = roundNumber(user.balance - transactionLog.fromCurrency.transactionAmount, 2)
+    }
+    user.balanceFluctuations.push({
+      transactionLog: transactionLog._id,
+      amount: transactionLog.fromCurrency.transactionAmount,
+      endingBalance: this.balance,
+      description: transactionLog.description
+    })
+    await user.save(opts)
+  }
+  catch (error) {
     console.log(error)
     throw error
   }

@@ -305,7 +305,6 @@ export const transferMoneyProcess = asyncHandler(async function (transferInfo) {
     let checkBalance = await checkBalanceBeforeTransaction(remitter, 'CHUYEN TIEN TRONG NGAN HANG', transferInfo.amount, 'VND')
     if (!checkBalance) {
       await session.abortTransaction()
-      session.endSession()
       return { status: HttpStatusCode.BAD_REQUEST, message: 'Số dư không đủ để thực hiện giao dịch.' }
     }
     const service = await Service.findOne({ service_name: 'CHUYEN TIEN TRONG NGAN HANG' }).exec()
@@ -315,11 +314,12 @@ export const transferMoneyProcess = asyncHandler(async function (transferInfo) {
     await transactionLog.save(opts)
     await Token.deleteOne({ userId: transferInfo.remitterId, token: transferInfo.token, tokenType: 'transfer' }, opts)
     await session.commitTransaction()
-    session.endSession()
   } catch (error) {
     await session.abortTransaction()
     console.log(error)
     return { status: HttpStatusCode.INTERNAL_SERVER, message: 'Đã có lỗi xảy ra trong khi giao dịch.' }
+  } finally {
+    session.endSession()
   }
   return { status: HttpStatusCode.OK, message: 'Chuyển tiền thành công.' }
 })

@@ -42,32 +42,6 @@ const checkMaxPayInDay = async function (card, cardType, amount, currency) {
   return true
 }
 
-// const checkCreditLimitInMonth = async function (card, cardType, amount, currency) {
-//   const today = new Date()
-//   const amountParsed = Number(amount)
-//   let exCurrencyFee = 0
-//   if (currency != 'VND')
-//     exCurrencyFee = roundNumber(amountParsed * card.exCurrency, 2)
-//   let aggregate = await TransactionLog.aggregate([
-//     { '$match': { 'from.number': card.cardNumber } },
-//     {
-//       '$group': {
-//         _id: {
-//           month: { $month: '$createdAt' },
-//           year: { $year: '$createdAt' }
-//         },
-//         amountInMonth: { $sum: '$toCurrency.transactionAmount' }
-//       }
-//     },
-//     { '$match': { '_id.month': today.getUTCMonth() + 1, '_id.year': today.getUTCFullYear() } }
-//   ])
-//   if (aggregate.length === 0 || !aggregate[0].amountInMonth)
-//     return true
-//   if (aggregate[0].amountInMonth + amountParsed + exCurrencyFee > cardType.creditLine)
-//     return false
-//   return true
-// }
-
 export const domesticPaymentProcess = async function (paymentInfo) {
   const gateway = await PaymentGate.findOne({ apiKey: paymentInfo.apiKey })
   if (!gateway || gateway.isGlobal) {
@@ -219,11 +193,6 @@ export const internationalPaymentProcess = async function (paymentInfo) {
     }
     return payDebitProcess(pay)
   } else {
-    // if (!(await checkCreditLimitInMonth(card, cardType, paymentInfo.amount, paymentInfo.currency)))
-    //   return {
-    //     status: HttpStatusCode.OK,
-    //     message: 'Credit limit exceeded'
-    //   }
     return payCreditProcess(pay)
   }
 }
@@ -244,7 +213,7 @@ const payCreditProcess = async function (pay) {
     let service = await Service.findOne({ service_name: 'THANH TOAN ONLINE' }).exec()
     service.fee_rate = pay.cardType.exCurrency || 0
     let paymentLogCustomer = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
-    await customer.paymentCredit(paymentLogCustomer, pay.card, opts)
+    await customer.paymentCredit(paymentLogCustomer, opts)
     await paymentLogCustomer.save(opts)
     //merchant process
     let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
@@ -273,6 +242,7 @@ const payCreditProcess = async function (pay) {
 
 const checkLimitCredit = async function (card, serviceName, amount, fromCurrency, cardType) {
   const service = await Service.findOne({ service_name: serviceName }).exec()
+  const today = new Date()
   service.fee_rate = cardType.exCurrency || 0
   let fee = {
     fromCurrency: {
@@ -285,7 +255,23 @@ const checkLimitCredit = async function (card, serviceName, amount, fromCurrency
     }
   }
   await service.calculateServiceFee(fee)
-  if (fee.toCurrency.transactionAmount + fee.toCurrency.transactionFee + card.currentUsed > cardType.creditLine) {
+  const sumCreditInMonth = await TransactionLog.aggregate([
+    { '$match': { 'from.number': card.cardNumber } },
+    {
+      '$group': {
+        _id: {
+          month: { $month: '$createdAt' },
+          year: { $year: '$createdAt' }
+        },
+        amountInMonth: { $sum: '$toCurrency.transactionAmount' }
+      }
+    },
+    { '$match': { '_id.month': today.getUTCMonth() + 1, '_id.year': today.getUTCFullYear() } }
+  ])
+  let usedInMonth = 0
+  if (sumCreditInMonth.length != 0)
+    usedInMonth = sumCreditInMonth.amountInMonth
+  if (fee.toCurrency.transactionAmount + fee.toCurrency.transactionFee + usedInMonth > cardType.creditLine) {
     return false
   }
   return true

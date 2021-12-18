@@ -1,0 +1,59 @@
+import * as corn from 'node-cron'
+import Service from '../models/service.model'
+import User from '../models/user.model'
+import TransactionLog from '../models/transactionModel'
+import * as TransactionLogService from '../services/transactionLog.service'
+import { startSession } from 'mongoose'
+import CardList from '../models/cardList.model'
+import { IntCredits } from '../models/cardTypes.model'
+
+export const scheduler = function () {
+  // 00:00:00 AM ngày 20 hàng tháng tính phí duy trì tài khoản
+  //corn.schedule('0 0 0 20 * *', processAccountMaintenanceFee)
+  //corn.schedule('0 0 0 * * *', processInterestCredit)
+}
+
+const processAccountMaintenanceFee = async function () {
+  let users = await User.find()
+  const service = await Service.findOne({ service_name: 'PHI DUY TRI TAI KHOAN' })
+  users.forEach(async (user) => {
+    if (user.balance == 0)
+      return
+    const session = await startSession()
+    await session.startTransaction()
+    try {
+      const opts = { session, returnOriginal: false }
+      const log = await TransactionLog.create(await TransactionLogService.createLogAccountMaintenanceFee(user, service))
+      await user.accountMaintenanceFee(log, opts)
+      await log.save(opts)
+      await session.commitTransaction()
+    } catch (error) {
+      await session.abortTransaction()
+      console.log(error)
+    } finally {
+      session.endSession()
+    }
+  })
+}
+
+const processInterestCredit = async function () {
+  const today = new Date()
+  const cardTypes = await IntCredits.find({ statmentDay: today.getUTCDate() })
+  cardTypes.forEach(async (cardType) => {
+    let cardList = await CardList.find({ cardTypeId: cardType._id })
+    cardList.forEach(async (card) => {
+      const session = await startSession()
+      await session.startTransaction()
+      try {
+        const opts = { session, returnOriginal: false }
+        card.currentUsed += card.currentUsed * cardType.interestRate
+        card.save(opts)
+      } catch (error) {
+        await session.abortTransaction()
+        console.log(error)
+      } finally {
+        session.endSession()
+      }
+    })
+  })
+}

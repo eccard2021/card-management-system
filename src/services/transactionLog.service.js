@@ -173,11 +173,37 @@ export const createLogPaymentMerchant = async function (remitter, paymentInfo, s
   return transactionLog
 }
 
+export const createLogAccountMaintenanceFee = async function (user, service) {
+  let transactionLog = {
+    from: {
+      bank: 'LTSBANK',
+      number: user.accNumber,
+      remitterName: user.name,
+      UID: new mongoose.Types.ObjectId(user._id)
+    },
+    to: {
+      bank: 'LTSBANK',
+      number: '000000',
+      receiverName: 'LTSBANK'
+    },
+    fromCurrency: {
+      transactionAmount: service.fixedfee,
+      transactionFee: 0,
+      currency_code: 'VND'
+    },
+    toCurrency: {
+      transactionAmount: service.fixedfee,
+      transactionFee: 0,
+      currency_code: 'VND'
+    },
+    exchangeRate: 1,
+    description: 'Phí duy trì tài khoản'
+  }
+  transactionLog.transType = service._id
+  return transactionLog
+}
+
 export const getTransactionLogs = asyncHandler(async (logsInfo) => {
-  // const logs = await TransactionLog.find({ '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] })
-  //   .select('-__v -_id')
-  //   .skip((logsInfo.page - 1) * logsInfo.limit).limit(logsInfo.limit)
-  //   .sort({ createdAt: -1 })
   const options = {
     page: logsInfo.page,
     limit: logsInfo.limit
