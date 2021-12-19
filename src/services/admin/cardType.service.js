@@ -1,6 +1,7 @@
 import { HttpStatusCode } from '../../utilities/constant'
 import asyncHandler from 'express-async-handler'
 import { IntCredits, IntDebits, DomDebits } from '../../models/cardTypes.model'
+import CardList from '../../models/cardList.model'
 
 const combination = {
   intCredits: {
@@ -123,3 +124,38 @@ export const getListCardsByType = asyncHandler(async function (cardTypeInfo) {
     message: listCardType
   }
 })
+
+export const createCard = async function (cardInfo) {
+  if (!combination[cardInfo.cardType]) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Không tìm thấy loại thẻ'
+    }
+  }
+  const cardType = await combination[cardInfo.cardType].model.findById(cardInfo.cardTypeId)
+  console.log(cardInfo)
+  if (!cardType) {
+    return {
+      status: HttpStatusCode.NOT_FOUND,
+      message: 'Không tìm thấy loại thẻ'
+    }
+  }
+  let card = await CardList.create({
+    cardNumber: cardInfo.card.cardNumber,
+    publisher: cardInfo.card.publisher,
+    CVV: cardInfo.card.CVV,
+    PIN: '000000',
+    isActive: false,
+    accOwner: null,
+    validDate: null,
+    expiredDate: null,
+    cardTypeId: cardType._id,
+    cardType: cardInfo.cardType.charAt(0).toUpperCase() + cardInfo.cardType.substring(1),
+    currentUsed: 0
+  })
+  await card.save()
+  return {
+    status: HttpStatusCode.OK,
+    message: 'Thêm thẻ mới thành công'
+  }
+}

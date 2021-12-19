@@ -11,7 +11,7 @@ export const scheduler = function () {
   // 00:00:00 AM ngày 20 hàng tháng tính phí duy trì tài khoản
   corn.schedule('0 0 0 20 * *', processAccountMaintenanceFee)
   corn.schedule('0 0 0 * * *', processAccountingCredit)
-  corn.schedule('0 0 0 * * *', processInterestCredit)
+  //corn.schedule('0 0 0 * * *', processInterestCredit)
 }
 
 const processAccountMaintenanceFee = async function () {

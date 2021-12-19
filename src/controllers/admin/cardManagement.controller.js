@@ -58,3 +58,18 @@ export const getListCardsByType = asyncHandler(async function (req, res) {
     throw new Error('Lỗi hệ thống')
   }
 })
+
+export const createCard = asyncHandler(async function (req, res) {
+  const cardInfo = {
+    cardType: req.params.cardType,
+    cardTypeId: req.query.cardTypeId,
+    card: req.body
+  }
+  try {
+    const result = await CardTypeService.createCard(cardInfo)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({ message: 'Lỗi hệ thống' })
+  }
+})

@@ -11,5 +11,7 @@ router.route('/:cardType')
 router.route('/:cardType/:urlPath')
   .get(CardTypeController.getCardByTypeAndUrlPath)
 //.delete()
+router.route('/:cardType/new')
+  .post(CardTypeController.createCard)
 
 export const cardTypeRoutes = router
