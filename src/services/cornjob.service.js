@@ -9,9 +9,10 @@ import { IntCredits } from '../models/cardTypes.model'
 
 export const scheduler = function () {
   // 00:00:00 AM ngày 20 hàng tháng tính phí duy trì tài khoản
+  console.log('Running corn job')
   corn.schedule('0 0 0 20 * *', processAccountMaintenanceFee)
   corn.schedule('0 0 0 * * *', processAccountingCredit)
-  //corn.schedule('0 0 0 * * *', processInterestCredit)
+  corn.schedule('0 0 0 * * *', processInterestCredit)
 }
 
 const processAccountMaintenanceFee = async function () {
@@ -85,10 +86,35 @@ const processAccountingCredit = async function () {
 const processInterestCredit = async function () {
   const today = new Date()
   const cardTypes = await IntCredits.find({
-    statmentDay: {
-      $dayOfMonth: {
-        $subtract: [today, { $multiply: ['$payWithin', 86400 * 1000] }]
-      }
+    $expr: {
+      $eq: [
+        {
+          $dayOfMonth: {
+            $subtract: [today, { $multiply: ['$payWithin', 86400 * 1000] }]
+          }
+        },
+        '$statmentDay'
+      ]
     }
+  })
+  cardTypes.forEach(async (cardType) => {
+    await CardList.updateMany(
+      { cardTypeId: cardType._id, accOwner: { '$ne': null } },
+      [
+        {
+          $set: {
+            debt: {
+              $add: [
+                '$debt',
+                {
+                  $multiply: ['$debt', cardType.interestRate]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      { strict: false }
+    )
   })
 }

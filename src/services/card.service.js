@@ -43,7 +43,7 @@ export const activeCardById = async function (cardId) {
       status: HttpStatusCode.OK,
       message: 'Thẻ đang hoạt động'
     }
-  card.isActive = false
+  card.isActive = true
   await card.save()
   return {
     status: HttpStatusCode.OK,
