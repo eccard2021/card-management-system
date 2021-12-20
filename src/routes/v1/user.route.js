@@ -3,10 +3,11 @@ import {
   authUser, getUserProfile, registerUser,
   updateUserPassword, logOutUser, logOutAll, chargeUser, chargeSubmitUser,
   withdrawMoneyUser, withdrawMoneySubmitUser, forgotPassword, getForgotPasswordInfoUser,
-  forgotPasswordSubmit, getWithdrawMoneyInfoUser, transferMoneyUser, getTransferMoneyInfoUser, transferMoneySubmitUser
+  forgotPasswordSubmit, getWithdrawMoneyInfoUser, transferMoneyUser, getTransferMoneyInfoUser, transferMoneySubmitUser,
+  creditDebtPayment, getDebtPaymentUser, creditDebtPaymentSubmitUser
 } from '../../controllers/user.controller'
 import { protect, authForgotPassword } from '../../middlewares/auth.middleware'
-import { authWithdrawMoney, authTransferMoney } from '../../middlewares/authTransactions.middleware'
+import { authWithdrawMoney, authTransferMoney, authDebtPayment } from '../../middlewares/authTransactions.middleware'
 import {
   validateRegisterUser, validateLoginUser, validateModifyPasswordUser,
   validateChargeUser, validateWithdrawMoneyUser, validateTransferMoneyUser
@@ -30,4 +31,7 @@ router.route('/forgot-password/submit').post(authForgotPassword, validateModifyP
 router.route('/transfer').post(protect, validateTransferMoneyUser(), transferMoneyUser)
 router.route('/transfer/verify').post(protect, authTransferMoney, getTransferMoneyInfoUser)
 router.route('/transfer/submit').post(protect, authTransferMoney, transferMoneySubmitUser)
+router.route('/debt-payment').post(protect, creditDebtPayment)
+router.route('/debt-payment/verify').post(protect, authDebtPayment, getDebtPaymentUser)
+router.route('/debt-payment/submit').post(protect, authDebtPayment, creditDebtPaymentSubmitUser)
 export const userRoutes = router

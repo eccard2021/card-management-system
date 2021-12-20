@@ -50,3 +50,25 @@ export const activeCardById = async function (cardId) {
     message: 'Mở khoá thẻ thành công'
   }
 }
+
+
+export const creditDebtPaymentAcceptOnCard = async function (transactionLog, opts) {
+  await CardList.updateOne(
+    { accOwner: transactionLog.from.UID, cardType: 'IntCredits' },
+    [
+      {
+        $set: {
+          debt: {
+            $subtract: ['$debt', transactionLog.fromCurrency.transactionAmount]
+          }
+        }
+      }
+    ],
+    opts
+  )
+}
+
+export const checkCreditDebtPayment = async function (debtInfo) {
+  const card = await CardList.findOne({ accOwner: debtInfo.userId, cardType: 'IntCredits' })
+  return card.debt - Number(debtInfo.amount)
+}

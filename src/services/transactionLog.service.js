@@ -223,6 +223,36 @@ export const getTransactionLogs = asyncHandler(async (logsInfo) => {
   }
 })
 
+export const createLogDebtPayment = async function (user, debtInfo, service) {
+  let transactionLog = {
+    from: {
+      bank: 'LTSBANK',
+      number: user.accNumber,
+      remitterName: user.name,
+      UID: new mongoose.Types.ObjectId(user._id)
+    },
+    to: {
+      bank: 'LTSBANK',
+      number: '000000',
+      receiverName: 'LTSBANK'
+    },
+    fromCurrency: {
+      transactionAmount: Number(debtInfo.amount),
+      transactionFee: 0,
+      currency_code: 'VND'
+    },
+    toCurrency: {
+      transactionAmount: Number(debtInfo.amount),
+      transactionFee: 0,
+      currency_code: 'VND'
+    },
+    exchangeRate: 1,
+    description: 'Thanh toán nợ tín dụng'
+  }
+  transactionLog.transType = service._id
+  return transactionLog
+}
+
 export const getTransactionLogById = async function (logInfo) {
   const log = await TransactionLog.aggregate([
     {

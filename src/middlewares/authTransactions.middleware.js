@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
 import asyncHandler from 'express-async-handler'
-import User from '../models/user.model'
 import Token from '../models/token.model'
 import { HttpStatusCode } from '@src/utilities/constant'
 
@@ -16,6 +15,16 @@ export const authWithdrawMoney = asyncHandler(async (req, res, next) => {
 
 export const authTransferMoney = asyncHandler(async (req, res, next) => {
   let result = await authTransactions(req, 'transfer')
+  if (result.status === HttpStatusCode.OK)
+    next()
+  else {
+    res.status(result.status)
+    throw new Error(result.message)
+  }
+})
+
+export const authDebtPayment = asyncHandler(async (req, res, next) => {
+  let result = await authTransactions(req, 'debt-payment')
   if (result.status === HttpStatusCode.OK)
     next()
   else {

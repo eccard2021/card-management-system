@@ -245,4 +245,38 @@ export const transferMoneySubmitUser = asyncHandler(async function (req, res) {
   res.status(result.status).json({ message: result.message })
 })
 
+export const creditDebtPayment = asyncHandler(async function (req, res) {
+  const debtInfo = {
+    userId: req.user._id,
+    amount: req.body.amount
+  }
+  try {
+    const result = await UserService.creditDebtPaymentInit(debtInfo)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({ message: 'Lỗi hệ thống' })
+  }
+})
+
+export const getDebtPaymentUser = asyncHandler(async function (req, res) {
+  res.status(HttpStatusCode.OK).json(req['debt-paymentInfo'])
+})
+
+export const creditDebtPaymentSubmitUser = asyncHandler(async function (req, res) {
+  const debtInfo = {
+    userId: req.user._id,
+    amount: req['debt-paymentInfo'].amount,
+    token: req.body.token
+  }
+  try {
+    const result = await UserService.creditDebtPaymentSubmit(debtInfo)
+    res.status(result.status).json({ message: result.message })
+  } catch (error) {
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({ message: 'Lỗi hệ thống' })
+  }
+})
+
+
 export { authUser, getUserProfile, registerUser, updateUserPassword }

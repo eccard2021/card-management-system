@@ -12,6 +12,7 @@ import Service from '../models/service.model'
 import * as TransactionLogService from './transactionLog.service'
 import TransactionLog from '../models/transactionModel'
 import { convertCurrency } from '../utilities/currency'
+import * as CardService from '../services/card.service'
 
 
 const SYNC_MODE = 'false'
@@ -323,6 +324,60 @@ export const transferMoneyProcess = asyncHandler(async function (transferInfo) {
   }
   return { status: HttpStatusCode.OK, message: 'Chuyển tiền thành công.' }
 })
+
+export const creditDebtPaymentInit = async function (debtInfo) {
+  let user = await User.findById(debtInfo.userId)
+  let checkBalance = await checkBalanceBeforeTransaction(user, 'THANH TOAN NO TIN DUNG', debtInfo.amount, 'VND')
+  if (!checkBalance)
+    return { status: HttpStatusCode.BAD_REQUEST, message: 'Số dư không đủ để thực hiện giao dịch.' }
+  const debtAmount = await CardService.checkCreditDebtPayment(debtInfo)
+  if (debtAmount < 0) {
+    return { status: HttpStatusCode.BAD_REQUEST, message: `Số tiền thanh toán vượt quá số tiền nợ. Vui lòng nhập số tiền thanh toán nhỏ hơn hoặc bằng ${-debtAmount}` }
+  }
+  let token = jwt.sign(
+    { _id: user._id, amount: debtInfo.amount, currency: 'VND' },
+    env.JWT_SECRET,
+    {
+      expiresIn: '15m'
+    })
+  let tokenSave = await Token.create({
+    userId: user._id,
+    tokenType: 'debt-payment',
+    token: token
+  })
+  await tokenSave.save()
+  const mailContext = `<p><a href="${env.FRONTEND_HOSTNAME}/user/debt-payment/verify?uid=${user._id}&token=${token}">Click vào đây để thanh toán nợ tín dụng</a></p>`
+  sendMail(user.email, 'LTSBANK: Xác nhận thanh toán nợ tín dụng', mailContext)
+  return { status: HttpStatusCode.OK, message: 'Đã gửi email xác nhận thanh toán nợ tín dụng, vui lòng kiểm tra email của bạn.' }
+}
+
+export const creditDebtPaymentSubmit = async function (debtInfo) {
+  const session = await startSession()
+  await session.startTransaction()
+  try {
+    const opts = { session, returnOriginal: false, strict: false }
+    let user = await User.findOne({ _id: debtInfo.userId })
+    let checkBalance = await checkBalanceBeforeTransaction(user, 'THANH TOAN NO TIN DUNG', debtInfo.amount, 'VND')
+    if (!checkBalance) {
+      await session.abortTransaction()
+      return { status: HttpStatusCode.BAD_REQUEST, message: 'Số dư không đủ để thực hiện giao dịch.' }
+    }
+    const service = await Service.findOne({ service_name: 'THANH TOAN NO TIN DUNG' }).exec()
+    let transactionLog = await TransactionLog.create(await TransactionLogService.createLogDebtPayment(user, debtInfo, service))
+    await CardService.creditDebtPaymentAcceptOnCard(transactionLog, opts)
+    await user.updateBalance(transactionLog, service, opts)
+    await transactionLog.save(opts)
+    await Token.deleteOne({ userId: user._id, token: debtInfo.token, tokenType: 'debt-payment' }, opts)
+    await session.commitTransaction()
+  } catch (error) {
+    await session.abortTransaction()
+    console.log(error)
+    return { status: HttpStatusCode.INTERNAL_SERVER, message: 'Đã có lỗi xảy ra trong khi giao dịch.' }
+  } finally {
+    session.endSession()
+  }
+  return { status: HttpStatusCode.OK, message: 'Thanh toán nợ tín dụng thành công.' }
+}
 
 export const checkBalanceBeforeTransaction = async function (user, serviceName, amount, fromCurrency) {
   const service = await Service.findOne({ service_name: serviceName }).exec()
