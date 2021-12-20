@@ -29,15 +29,11 @@ export const getUserProfileById = asyncHandler(async function (req, res) {
   }
 })
 
-export const getTransactionLogsByUserId = asyncHandler(async function (req, res) {
-  const logsInfo = {
-    userId: req.query._id,
-    page: req.query.page || 1,
-    limit: 10
-  }
+export const getTransactionLogDetails = asyncHandler(async function (req, res) {
+  const logId = req.query.logId
   try {
-    const result = await UserManagementService.getTransactionLogsByUserId(logsInfo)
-    res.status(result.status).json(result.transactionLogs)
+    const result = await UserManagementService.getTransactionLogsByUserId(logId)
+    res.status(result.status).json(result.transactionLog)
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER)
     throw new Error('Lỗi hệ thống')

@@ -34,28 +34,13 @@ export const getUserProfileById = asyncHandler(async function (userId) {
   }
 })
 
-export const getTransactionLogsByUserId = asyncHandler(async function (logsInfo) {
-  const options = {
-    page: logsInfo.page,
-    limit: logsInfo.limit
-  }
-  const aggrerate = TransactionLog.aggregate([
-    {
-      '$match': {
-        '$or': [
-          { 'from.UID': mongoose.Types.ObjectId(logsInfo.userId) },
-          { 'to.UID': mongoose.Types.ObjectId(logsInfo.userId) }
-        ]
-      }
-    },
-    {
-      '$project': { __v: 0, _id: 0 }
-    }
-  ])
-  const logs = await TransactionLog.aggregatePaginate(aggrerate, options)
+export const getTransactionLogsByUserId = asyncHandler(async function (logId) {
+  const log = await TransactionLog.findById(logId)
+    .select('-__v -updatedAt')
+    .populate('transType', '-_id -coefficient -__v -action')
   return {
     status: HttpStatusCode.OK,
-    transactionLogs: logs
+    transactionLog: log
   }
 })
 
