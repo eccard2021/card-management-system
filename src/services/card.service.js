@@ -68,6 +68,22 @@ export const creditDebtPaymentAcceptOnCard = async function (transactionLog, opt
   )
 }
 
+export const creditPaymentUpdate = async function (transactionLog, card, opts) {
+  await CardList.updateOne(
+    { _id: card._id },
+    [
+      {
+        $set: {
+          currentUsed: {
+            $add: ['$currentUsed', transactionLog.fromCurrency.transactionAmount]
+          }
+        }
+      }
+    ],
+    opts
+  )
+}
+
 export const checkCreditDebtPayment = async function (debtInfo) {
   const card = await CardList.findOne({ accOwner: debtInfo.userId, cardType: 'IntCredits' })
   return card.debt - Number(debtInfo.amount)

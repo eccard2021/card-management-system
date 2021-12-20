@@ -42,44 +42,29 @@ const processAccountingCredit = async function () {
   const today = new Date()
   const cardTypes = await IntCredits.find({ statmentDay: today.getUTCDate() })
   cardTypes.forEach(async (cardType) => {
-    let lastMonth = new Date(today.getUTCFullYear(), today.getUTCMonth() - 1, cardType.statmentDay)
-    let currentMonth = new Date(today.getUTCFullYear(), today.getUTCMonth(), cardType.statmentDay)
-    let cardList = await CardList.find({ cardTypeId: cardType._id, accOwner: { '$ne': null } })
-    cardList.forEach(async (card) => {
-      const sumCreditInMonth = await TransactionLog.aggregate([
-        {
-          '$match': {
-            'from.number': card.cardNumber,
-            'createdAt': {
-              '$gt': lastMonth,
-              '$lte': currentMonth
+    const session = await startSession()
+    await session.startTransaction()
+    try {
+      const opts = { session, returnOriginal: false, strict: false }
+      let cardList = await CardList.updateMany(
+        { cardTypeId: cardType._id, accOwner: { '$ne': null } },
+        [
+          {
+            $set: {
+              debt: { $add: ['$debt', '$currentUsed'] },
+              currentUsed: 0
             }
           }
-        },
-        {
-          '$group': {
-            _id: null,
-            amountInMonth: { $sum: '$fromCurrency.transactionAmount' }
-          }
-        }
-      ])
-      let usedInMonth = 0
-      if (sumCreditInMonth.length != 0)
-        usedInMonth = sumCreditInMonth[0].amountInMonth
-      const session = await startSession()
-      await session.startTransaction()
-      try {
-        const opts = { session, returnOriginal: false }
-        card.debt += card.currentUsed
-        card.currentUsed = usedInMonth
-        card.save(opts)
-      } catch (error) {
-        await session.abortTransaction()
-        console.log(error)
-      } finally {
-        session.endSession()
-      }
-    })
+        ],
+        opts
+      )
+      await session.commitTransaction()
+    } catch (error) {
+      await session.abortTransaction()
+      console.log(error)
+    } finally {
+      session.endSession()
+    }
   })
 }
 

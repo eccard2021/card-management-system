@@ -8,6 +8,7 @@ import { roundNumber, convertCurrency } from '../utilities/currency'
 import Service from '../models/service.model'
 import TransactionLog from '../models/transactionModel'
 import * as TransactionLogService from './transactionLog.service'
+import * as CardService from './card.service'
 
 const combination = {
   IntCredits: IntCredits,
@@ -214,6 +215,7 @@ const payCreditProcess = async function (pay) {
     service.fee_rate = pay.cardType.exCurrency || 0
     let paymentLogCustomer = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
     await customer.paymentCredit(paymentLogCustomer, opts)
+    await CardService.creditPaymentUpdate(paymentLogCustomer, pay.card, opts)
     await paymentLogCustomer.save(opts)
     //merchant process
     let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
@@ -254,30 +256,7 @@ const checkLimitCredit = async function (card, serviceName, amount, fromCurrency
     }
   }
   await service.calculateServiceFee(fee)
-  const today = new Date()
-  let lastMonth = new Date(today.getUTCFullYear(), today.getUTCMonth() - 1, cardType.statmentDay)
-  let currentMonth = new Date(today.getUTCFullYear(), today.getUTCMonth(), cardType.statmentDay)
-  const sumCreditInMonth = await TransactionLog.aggregate([
-    {
-      '$match': {
-        'from.number': card.cardNumber,
-        'createdAt': {
-          '$gt': lastMonth,
-          '$lte': currentMonth
-        }
-      }
-    },
-    {
-      '$group': {
-        _id: null,
-        amountInMonth: { $sum: '$fromCurrency.transactionAmount' }
-      }
-    }
-  ])
-  let usedInMonth = 0
-  if (sumCreditInMonth.length != 0)
-    usedInMonth = sumCreditInMonth[0].amountInMonth
-  if (fee.toCurrency.transactionAmount + fee.toCurrency.transactionFee + usedInMonth > cardType.creditLine) {
+  if (fee.toCurrency.transactionAmount + fee.toCurrency.transactionFee + card.currentUsed > cardType.creditLine) {
     return false
   }
   return true
