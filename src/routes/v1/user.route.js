@@ -10,7 +10,8 @@ import { protect, authForgotPassword } from '../../middlewares/auth.middleware'
 import { authWithdrawMoney, authTransferMoney, authDebtPayment, authChargeMoney } from '../../middlewares/authTransactions.middleware'
 import {
   validateRegisterUser, validateLoginUser, validateModifyPasswordUser,
-  validateChargeUser, validateWithdrawMoneyUser, validateTransferMoneyUser
+  validateChargeUser, validateWithdrawMoneyUser, validateTransferMoneyUser,
+  validateDebtPaymentUser
 } from '../../validators/user.validator'
 
 const router = express.Router()
@@ -31,7 +32,7 @@ router.route('/forgot-password/submit').post(authForgotPassword, validateModifyP
 router.route('/transfer').post(protect, validateTransferMoneyUser(), transferMoneyUser)
 router.route('/transfer/verify').post(protect, authTransferMoney, getTransferMoneyInfoUser)
 router.route('/transfer/submit').post(protect, authTransferMoney, transferMoneySubmitUser)
-router.route('/debt-payment').post(protect, creditDebtPayment)
+router.route('/debt-payment').post(protect, validateDebtPaymentUser(), creditDebtPayment)
 router.route('/debt-payment/verify').post(protect, authDebtPayment, getDebtPaymentUser)
 router.route('/debt-payment/submit').post(protect, authDebtPayment, creditDebtPaymentSubmitUser)
 export const userRoutes = router

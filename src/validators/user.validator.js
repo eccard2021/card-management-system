@@ -66,3 +66,9 @@ export const validateTransferMoneyUser = () => {
     body('amount').isNumeric().withMessage('Số tiền không hợp lệ')
   ]
 }
+
+export const validateDebtPaymentUser = () => {
+  return [
+    body('amount').isNumeric().withMessage('Số tiền không hợp lệ')
+  ]
+}

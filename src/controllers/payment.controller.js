@@ -1,8 +1,14 @@
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../utilities/constant'
 import * as PaymentService from '../services/payment.service'
+import { validationResult } from 'express-validator'
 
 export const domesticPayment = asyncHandler(async function (req, res) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Thông tin thanh toán không hợp lệ', errors: errors.array() })
+    return
+  }
   const paymentInfo = {
     apiKey: req.body.apiKey,
     cardNumber: req.body.cardNumber,
@@ -20,6 +26,11 @@ export const domesticPayment = asyncHandler(async function (req, res) {
 })
 
 export const internationalPayment = asyncHandler(async function (req, res) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Thông tin thanh toán không hợp lệ', errors: errors.array() })
+    return
+  }
   const paymentInfo = {
     apiKey: req.body.apiKey,
     cardNumber: req.body.cardNumber,

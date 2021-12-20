@@ -1,10 +1,8 @@
 import User from '@src/models/user.model'
-import env from '../config/environment'
 import * as UserService from '../services/user.service'
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../utilities/constant'
 import { validationResult } from 'express-validator'
-import paypal from 'paypal-rest-sdk'
 
 
 const authUser = asyncHandler(async (req, res) => {
@@ -245,6 +243,11 @@ export const transferMoneySubmitUser = asyncHandler(async function (req, res) {
 })
 
 export const creditDebtPayment = asyncHandler(async function (req, res) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Số tiền không hợp lệ' })
+    return
+  }
   const debtInfo = {
     userId: req.user._id,
     amount: req.body.amount

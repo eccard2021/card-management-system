@@ -1,8 +1,14 @@
 import asyncHandler from 'express-async-handler'
 import { HttpStatusCode } from '../utilities/constant'
 import * as OrderService from '../services/order.service'
+import { validationResult } from 'express-validator'
 
 export const cardInitOrder = asyncHandler(async function (req, res) {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(422).json({ message: 'Thông tin còn sót hoặc không hợp lệ' })
+    return
+  }
   const orderInfo = {
     orderType: 'CARD_Init',
     orderOwner: req.user._id,

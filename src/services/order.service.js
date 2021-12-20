@@ -11,8 +11,11 @@ const combination = {
 }
 
 export const cardInit = async function (orderInfo) {
+
+  if (!orderInfo.cardType || !orderInfo.cardTypeId || !combination[orderInfo.cardType])
+    return { status: HttpStatusCode.NOT_FOUND, message: 'Thông tin không hợp lệ' }
   const cardType = await combination[orderInfo.cardType].findById(orderInfo.cardTypeId)
-  if (!orderInfo.cardType || !orderInfo.cardTypeId || !cardType)
+  if (!cardType)
     return { status: HttpStatusCode.NOT_FOUND, message: 'Thông tin không hợp lệ' }
   if (!cardType.isIssuing)
     return { status: HttpStatusCode.BAD_REQUEST, message: 'Hiện tại thẻ đang không phát hành' }
