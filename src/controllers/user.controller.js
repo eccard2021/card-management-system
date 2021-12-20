@@ -91,12 +91,6 @@ export const logOutAll = asyncHandler(async (req, res) => {
   }
 })
 
-paypal.configure({
-  'mode': 'sandbox',
-  'client_id': env.PAYPAL_CLIENT_ID,
-  'client_secret': env.PAYPAL_CLIENT_SECRET
-})
-
 export const chargeUser = asyncHandler(async (req, res) => {
   //sb-v7mkg8597409@business.example.com
   //testsandbox     NC,^5NCl
@@ -108,11 +102,15 @@ export const chargeUser = asyncHandler(async (req, res) => {
     res.status(422).json({ message: 'Lỗi giao dịch', errors: errors.array() })
     return
   }
-  const amount = req.body.amount
+  const chargeInfo = {
+    amount: req.body.amount,
+    userId: req.user._id
+  }
   try {
-    await UserService.chargeMoneyInit(amount, res)
+    await UserService.chargeMoneyInit(chargeInfo, res)
   } catch (error) {
-    req.status(HttpStatusCode.INTERNAL_SERVER)
+    console.log(error)
+    res.status(HttpStatusCode.INTERNAL_SERVER)
     throw Error('Không thể khởi tạo giao dịch')
   }
 })
@@ -121,7 +119,8 @@ export const chargeSubmitUser = asyncHandler(async (req, res) => {
   const info = {
     payerId: req.body.PayerID,
     paymentId: req.body.paymentId,
-    userId: req.user._id
+    userId: req.user._id,
+    token: req.body.token
   }
   try {
     await UserService.chargeMoneyProcess(info, res)

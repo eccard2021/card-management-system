@@ -7,7 +7,7 @@ import {
   creditDebtPayment, getDebtPaymentUser, creditDebtPaymentSubmitUser
 } from '../../controllers/user.controller'
 import { protect, authForgotPassword } from '../../middlewares/auth.middleware'
-import { authWithdrawMoney, authTransferMoney, authDebtPayment } from '../../middlewares/authTransactions.middleware'
+import { authWithdrawMoney, authTransferMoney, authDebtPayment, authChargeMoney } from '../../middlewares/authTransactions.middleware'
 import {
   validateRegisterUser, validateLoginUser, validateModifyPasswordUser,
   validateChargeUser, validateWithdrawMoneyUser, validateTransferMoneyUser
@@ -21,7 +21,7 @@ router.route('/register').post(validateRegisterUser(), registerUser)
 router.route('/logout').post(protect, logOutUser)
 router.route('/logoutall').post(protect, logOutAll)
 router.route('/charge').post(protect, validateChargeUser(), chargeUser)
-router.route('/charge/submit').post(protect, chargeSubmitUser)
+router.route('/charge/submit').post(protect, authChargeMoney, chargeSubmitUser)
 router.route('/withdraw-money').post(protect, validateWithdrawMoneyUser(), withdrawMoneyUser)
 router.route('/withdraw-money/verify').post(protect, authWithdrawMoney, getWithdrawMoneyInfoUser)
 router.route('/withdraw-money/submit').post(protect, authWithdrawMoney, withdrawMoneySubmitUser)

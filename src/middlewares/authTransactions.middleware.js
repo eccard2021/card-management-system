@@ -3,6 +3,16 @@ import asyncHandler from 'express-async-handler'
 import Token from '../models/token.model'
 import { HttpStatusCode } from '@src/utilities/constant'
 
+export const authChargeMoney = asyncHandler(async function (req, res, next) {
+  let result = await authTransactions(req, 'charge')
+  if (result.status === HttpStatusCode.OK)
+    next()
+  else {
+    res.status(result.status)
+    throw new Error(result.message)
+  }
+})
+
 export const authWithdrawMoney = asyncHandler(async (req, res, next) => {
   let result = await authTransactions(req, 'withdraw')
   if (result.status === HttpStatusCode.OK)

@@ -16,6 +16,12 @@ import * as CardService from '../services/card.service'
 
 
 const SYNC_MODE = 'false'
+paypal.configure({
+  'mode': 'sandbox',
+  'client_id': env.PAYPAL_CLIENT_ID,
+  'client_secret': env.PAYPAL_CLIENT_SECRET
+})
+
 
 export const findByCredentials = asyncHandler(async function (email, password) {
   let user = await User.findByCredentials(email, password)
@@ -25,16 +31,7 @@ export const findByCredentials = asyncHandler(async function (email, password) {
   return {
     _id: user._id,
     name: user.name,
-    birth: user.birth,
-    isMale: user.isMale,
-    personalIdNumber: user.personalIdNumber,
-    phoneNumber: user.phoneNumber,
     email: user.email,
-    homeAddress: user.homeAddress,
-    job: user.job,
-    accNumber: user.accNumber,
-    isAdmin: user.isAdmin,
-    balance: user.balance,
     token: token
   }
 })
@@ -131,14 +128,26 @@ export const updateForgotPassword = asyncHandler(async function (userInfo) {
   return { status: HttpStatusCode.OK, message: 'Đổi mật khẩu thành công, vui lòng đăng nhập lại' }
 })
 
-export const chargeMoneyInit = asyncHandler(async function (amount, res) {
+export const chargeMoneyInit = asyncHandler(async function (chargeInfo, res) {
+  let token = jwt.sign(
+    { _id: chargeInfo.userId, amount: chargeInfo.amount },
+    env.JWT_SECRET,
+    {
+      expiresIn: '15m'
+    })
+  let tokenSave = await Token.create({
+    userId: chargeInfo.userId,
+    tokenType: 'charge',
+    token: token
+  })
+  await tokenSave.save()
   let create_payment_json = {
     'intent': 'sale',
     'payer': {
       'payment_method': 'paypal'
     },
     'redirect_urls': {
-      'return_url': `${env.FRONTEND_HOSTNAME}/user/charge/submit`,
+      'return_url': `${env.FRONTEND_HOSTNAME}/user/charge/submit?token=${token}`,
       'cancel_url': `${env.FRONTEND_HOSTNAME}/user/charge/submit/fail`
     },
     'transactions': [{
@@ -146,14 +155,14 @@ export const chargeMoneyInit = asyncHandler(async function (amount, res) {
         'items': [{
           'name': 'Nạp tiền vào tài khoản LTS Bank',
           'sku': '001',
-          'price': amount,
+          'price': chargeInfo.amount,
           'currency': 'USD',
           'quantity': 1
         }]
       },
       'amount': {
         'currency': 'USD',
-        'total': amount
+        'total': chargeInfo.amount
       },
       'description': 'Nạp tiền vào tài khoản LTS Bank'
     }]
@@ -199,6 +208,7 @@ export const chargeMoneyProcess = asyncHandler(async function (info, res) {
         let transactionLog = await TransactionLog.create(await TransactionLogService.createLogChargePayPal(user, chargeSuccess, service))
         transactionLog.save()
         await user.updateBalance(transactionLog, service)
+        await Token.deleteOne({ userId: info.userId, token: info.token, tokenType: 'charge' })
         res.status(HttpStatusCode.OK).json({ message: 'Nạp tiền từ Paypal thành công' })
       } catch (error) {
         //can refund????
