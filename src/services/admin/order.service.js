@@ -46,33 +46,12 @@ export const getOrderPagination = async function (info) {
 }
 
 export const getOrderById = async function (orderId) {
-  const order = await OrderForm.aggregate([
-    {
-      '$match': { '_id': mongoose.Types.ObjectId(orderId) }
-    },
-    {
-      '$lookup': {
-        from: 'users',
-        localField: 'orderOwner',
-        foreignField: '_id',
-        as: 'orderOwner'
-      }
-    },
-    {
-      '$unwind': '$orderOwner'
-    },
-    {
-      '$project': {
-        '_id': 1, 'orderType': 1, 'status': 1, 'createdAt': 1,
-        'cusCmt': 1, 'bankCmt': 1,
-        'orderOwner': {
-          'name': 1, 'birth': 1, 'isMale': 1, 'personalIdNumber': 1,
-          'phoneNumber': 1, 'email': 1, 'homeAddress': 1, 'job': 1,
-          'accNumber': 1, '_id': 1
-        }
-      }
-    }
-  ])
+  const order = await OrderForm.findById(orderId)
+    .populate('orderOwner', '_id name birth isMale personalIdNumber phoneNumber email homeAddress job accNumber')
+    .populate('cardTypeId', 'publisher cardName cardRank condition creditLine maxPay')
+    .populate('cardId', 'cardNumber publisher isActive validDate expiredDate cardType currentUsed debt')
+    .populate('gateId', 'isGlobal isActive apiKey')
+    .select('-__v')
   if (order.length === 0)
     return {
       status: HttpStatusCode.NOT_FOUND,
@@ -80,7 +59,7 @@ export const getOrderById = async function (orderId) {
     }
   return {
     status: HttpStatusCode.OK,
-    order: order[0]
+    order: order
   }
 }
 
@@ -92,11 +71,11 @@ const cardInit = async function (approveInfo, order) {
     }
   let user = await User.findById(order.orderOwner)
   const cardType = await combination[order.cardType].findById(order.cardTypeId)
-  // if (order.cardType === 'IntCredits' && cardType.condition > user.job.salary)
-  //   return {
-  //     status: HttpStatusCode.OK,
-  //     message: 'Mức lương không đủ để mở thẻ tín dụng'
-  //   }
+  if (order.cardType === 'IntCredits' && cardType.condition > user.job.salary)
+    return {
+      status: HttpStatusCode.OK,
+      message: 'Mức lương không đủ để mở thẻ tín dụng'
+    }
   const card = await CardService.registCardForUser(order)
   order.bankCmt = approveInfo.bankCmt
   order.status = 'approve'
