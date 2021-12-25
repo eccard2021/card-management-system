@@ -108,8 +108,8 @@ const payDebitProcess = async function (pay) {
     //merchant process
     let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
     let paymentLogMerchant = await TransactionLog.create(await TransactionLogService.createLogPaymentMerchant(merchant, pay, serviceMerchant))
-    await paymentLogMerchant.save(opts)
-    await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant, opts)
+    await paymentLogMerchant.save()
+    await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant)
     //end
     await session.commitTransaction()
     return {
@@ -216,12 +216,12 @@ const payCreditProcess = async function (pay) {
     let paymentLogCustomer = await TransactionLog.create(await TransactionLogService.createLogPayment(customer, merchant, pay, service))
     await paymentLogCustomer.save(opts)
     await customer.paymentCredit(paymentLogCustomer, opts)
-    await CardService.creditPaymentUpdate(paymentLogCustomer, pay.card, opts)
+    await CardService.creditPaymentUpdate(paymentLogCustomer, pay.card)
     //merchant process
     let serviceMerchant = await Service.findOne({ service_name: 'THANH TOAN ONLINE MERCHANT' }).exec()
     let paymentLogMerchant = await TransactionLog.create(await TransactionLogService.createLogPaymentMerchant(merchant, pay, serviceMerchant))
-    await paymentLogMerchant.save(opts)
-    await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant, opts)
+    await paymentLogMerchant.save()
+    await merchant.merchantUpdate(paymentLogCustomer, paymentLogMerchant)
     //end
     await session.commitTransaction()
     return {
