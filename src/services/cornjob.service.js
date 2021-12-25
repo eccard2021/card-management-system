@@ -26,8 +26,8 @@ const processAccountMaintenanceFee = async function () {
     try {
       const opts = { session, returnOriginal: false }
       const log = await TransactionLog.create(await TransactionLogService.createLogAccountMaintenanceFee(user, service))
-      await user.accountMaintenanceFee(log, opts)
       await log.save(opts)
+      await user.accountMaintenanceFee(log, opts)
       await session.commitTransaction()
     } catch (error) {
       await session.abortTransaction()

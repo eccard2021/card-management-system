@@ -206,7 +206,7 @@ export const chargeMoneyProcess = asyncHandler(async function (info, res) {
         const service = await Service.findOne({ service_name: 'NAP TIEN PAYPAL' }).exec()
         let user = await User.findById(info.userId)
         let transactionLog = await TransactionLog.create(await TransactionLogService.createLogChargePayPal(user, chargeSuccess, service))
-        transactionLog.save()
+        await transactionLog.save()
         await user.updateBalance(transactionLog, service)
         await Token.deleteOne({ userId: info.userId, token: info.token, tokenType: 'charge' })
         res.status(HttpStatusCode.OK).json({ message: 'Nạp tiền từ Paypal thành công' })
@@ -320,9 +320,9 @@ export const transferMoneyProcess = asyncHandler(async function (transferInfo) {
     }
     const service = await Service.findOne({ service_name: 'CHUYEN TIEN TRONG NGAN HANG' }).exec()
     let transactionLog = await TransactionLog.create(await TransactionLogService.createLogTransfer(remitter, receiver, transferInfo, service))
+    await transactionLog.save(opts)
     await remitter.updateBalance(transactionLog, service, opts)
     await receiver.receiveMoney(transactionLog, opts)
-    await transactionLog.save(opts)
     await Token.deleteOne({ userId: transferInfo.remitterId, token: transferInfo.token, tokenType: 'transfer' }, opts)
     await session.commitTransaction()
   } catch (error) {
@@ -374,9 +374,9 @@ export const creditDebtPaymentSubmit = async function (debtInfo) {
     }
     const service = await Service.findOne({ service_name: 'THANH TOAN NO TIN DUNG' }).exec()
     let transactionLog = await TransactionLog.create(await TransactionLogService.createLogDebtPayment(user, debtInfo, service))
+    await transactionLog.save(opts)
     await CardService.creditDebtPaymentAcceptOnCard(transactionLog, opts)
     await user.updateBalance(transactionLog, service, opts)
-    await transactionLog.save(opts)
     await Token.deleteOne({ userId: user._id, token: debtInfo.token, tokenType: 'debt-payment' }, opts)
     await session.commitTransaction()
   } catch (error) {
