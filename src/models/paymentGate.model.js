@@ -18,7 +18,7 @@ const paymentGateSchema = mongoose.Schema({
   },
   apiKey: {
     type: String,
-    require: true
+    required: true
   }
 }, {
   timestamps: true

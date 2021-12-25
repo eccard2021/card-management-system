@@ -4,7 +4,7 @@ import { standardizeCardNameForUrl } from '../utilities/cardType.utils'
 const IntCreditsSchema = mongoose.Schema({
   cardUrl: {
     type: String,
-    require: true,
+    required: true,
     unique: true
   },
   isIssuing: {
@@ -14,11 +14,11 @@ const IntCreditsSchema = mongoose.Schema({
   },
   publisher: {
     type: String,
-    require: true
+    required: true
   },
   cardName: {
     type: String,
-    require: true
+    required: true
   },
   image: {
     type: String,
@@ -71,7 +71,7 @@ const IntCreditsSchema = mongoose.Schema({
 const IntDebitsSchema = mongoose.Schema({
   cardUrl: {
     type: String,
-    require: true,
+    required: true,
     unique: true
   },
   isIssuing: {
@@ -81,11 +81,11 @@ const IntDebitsSchema = mongoose.Schema({
   },
   publisher: {
     type: String,
-    require: true
+    required: true
   },
   cardName: {
     type: String,
-    require: true
+    required: true
   },
   image: {
     type: String,
@@ -122,7 +122,7 @@ const IntDebitsSchema = mongoose.Schema({
 const DomDebitsSchema = mongoose.Schema({
   cardUrl: {
     type: String,
-    require: true,
+    required: true,
     unique: true
   },
   isIssuing: {
@@ -132,11 +132,11 @@ const DomDebitsSchema = mongoose.Schema({
   },
   publisher: {
     type: String,
-    require: true
+    required: true
   },
   cardName: {
     type: String,
-    require: true
+    required: true
   },
   image: {
     type: String,

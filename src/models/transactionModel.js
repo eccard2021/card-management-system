@@ -13,7 +13,7 @@ const TransactionLogSchema = mongoose.Schema({
     },
     remitterName: {
       type: String,
-      require: true
+      required: true
     },
     UID: {
       type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +36,7 @@ const TransactionLogSchema = mongoose.Schema({
     },
     receiverName: {
       type: String,
-      require: true
+      required: true
     },
     UID: {
       type: mongoose.Schema.Types.ObjectId,
@@ -51,12 +51,12 @@ const TransactionLogSchema = mongoose.Schema({
     },
     transactionFee: {
       type: Number,
-      require: true,
+      required: true,
       min: 0
     },
     currency_code: {
       type: String,
-      require: true
+      required: true
     }
   },
   toCurrency: {
@@ -67,17 +67,17 @@ const TransactionLogSchema = mongoose.Schema({
     },
     transactionFee: {
       type: Number,
-      require: true,
+      required: true,
       min: 0
     },
     currency_code: {
       type: String,
-      require: true
+      required: true
     }
   },
   exchangeRate: {
     type: Number,
-    require: true,
+    required: true,
     min: 0
   },
   description: {

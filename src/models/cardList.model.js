@@ -9,7 +9,7 @@ const CardListSchema = mongoose.Schema({
   },
   publisher: {
     type: String,
-    require: true
+    required: true
   },
   CVV: {
     type: String,

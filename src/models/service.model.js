@@ -5,11 +5,11 @@ const ServiceSchema = mongoose.Schema({
   service_name: {
     type: String,
     unique: true,
-    require: true
+    required: true
   },
   fixedfee: {
     type: Number,
-    require: true,
+    required: true,
     min: 0
   },
   fee_rate: {
@@ -19,14 +19,14 @@ const ServiceSchema = mongoose.Schema({
   },
   coefficient: {
     type: Number,
-    require: true,
+    required: true,
     min: -1,
     max: 1,
     default: 1
   },
   action: {
     type: String,
-    require: true,
+    required: true,
     enum: ['charge', 'withdraw', 'transfer', 'payment', 'monthly_fee', 'service_fee']
   }
 })

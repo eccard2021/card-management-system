@@ -3,15 +3,15 @@ const TokenSchema = mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users',
-    require: true
+    required: true
   },
   token: {
     type: String,
-    require: true
+    required: true
   },
   tokenType: {
     type: String,
-    require: true,
+    required: true,
     enum: ['login', 'charge', 'withdraw', 'transfer', 'forgot-password', 'debt-payment'],
     default: 'login'
   },

@@ -92,7 +92,11 @@ const cardInit = async function (approveInfo, order) {
     }
   let user = await User.findById(order.orderOwner)
   const cardType = await combination[order.cardType].findById(order.cardTypeId)
-  ////
+  // if (order.cardType === 'IntCredits' && cardType.condition > user.job.salary)
+  //   return {
+  //     status: HttpStatusCode.OK,
+  //     message: 'Mức lương không đủ để mở thẻ tín dụng'
+  //   }
   const card = await CardService.registCardForUser(order)
   order.bankCmt = approveInfo.bankCmt
   order.status = 'approve'

@@ -78,11 +78,11 @@ const UserSchema = mongoose.Schema({
     },
     amount: {
       type: Number,
-      require: true
+      required: true
     },
     endingBalance: {
       type: Number,
-      require: true
+      required: true
     },
     description: {
       type: String
