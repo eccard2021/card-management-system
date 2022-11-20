@@ -9,7 +9,9 @@ export const checkUserHavePaymentGateway = async function (order) {
 }
 
 export const checkUserOwnPaymentGateway = async function (order) {
+  console.log(order)
   const gateway = await PaymentGate.findOne({ gateOwner: order.orderOwner, _id: order.gateId })
+  console.log(gateway)
   if (!gateway)
     return false
   return true

@@ -124,7 +124,7 @@ const paymentGatewayInit = async function (approveInfo, order) {
 }
 
 const paymentGatewayCancel = async function (approveInfo, order) {
-  if (await PaymentGatewayService.checkUserOwnPaymentGateway(order))
+  if (!await PaymentGatewayService.checkUserOwnPaymentGateway(order))
     return {
       status: HttpStatusCode.OK,
       message: 'Người dùng không sở hữu cổng thanh toán này'
@@ -137,7 +137,7 @@ const paymentGatewayCancel = async function (approveInfo, order) {
   sendMail(user.email, 'Xoá cổng thanh toán', JSON.stringify(gateway))
   return {
     status: HttpStatusCode.OK,
-    message: 'Tạo cổng thanh toán thành công, đã gửi thông tin thẻ vào email của người dùng'
+    message: ' Hủy cổng thanh toán thành công'
   }
 }
 
