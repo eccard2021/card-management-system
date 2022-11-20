@@ -199,10 +199,12 @@ export const createLogAccountMaintenanceFee = async function (user, service) {
 }
 
 export const getTransactionLogs = asyncHandler(async (logsInfo) => {
+  
   const options = {
-    page: logsInfo.page || 1,
+    page: logsInfo.page === 'undefined' ? 1 : logsInfo.page,
     limit: logsInfo.limit
   }
+  console.log(options)
   const aggregate = TransactionLog.aggregate([
     {
       '$match': { '$or': [{ 'from.UID': logsInfo.userId }, { 'to.UID': logsInfo.userId }] }
