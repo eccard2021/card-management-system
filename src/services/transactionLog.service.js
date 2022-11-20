@@ -200,7 +200,7 @@ export const createLogAccountMaintenanceFee = async function (user, service) {
 
 export const getTransactionLogs = asyncHandler(async (logsInfo) => {
   const options = {
-    page: logsInfo.page,
+    page: logsInfo.page || 1,
     limit: logsInfo.limit
   }
   const aggregate = TransactionLog.aggregate([
